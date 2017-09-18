@@ -89,6 +89,8 @@ public class MainActivity extends Activity {
             if (birthdayCur.getCount() > 0) {
                 while (birthdayCur.moveToNext()) {
                     String birthday = birthdayCur.getString(birthdayCur.getColumnIndex(ContactsContract.CommonDataKinds.Event.START_DATE));
+                    birthday=birthday.substring(2,birthday.length());
+                    contactInfoMap.put(displayName,birthday);
                     stringBuilder.append("Name: ").append(displayName).append(". Birthday: ").append(birthday).append("\n\n");
                 }
             }
