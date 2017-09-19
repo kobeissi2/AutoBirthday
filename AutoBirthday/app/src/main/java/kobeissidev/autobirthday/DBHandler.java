@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
 import android.content.Context;
 import android.content.ContentValues;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +60,7 @@ public class DBHandler extends SQLiteOpenHelper {
         Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
                 cursor.getString(1), cursor.getString(2), cursor.getString(3));
 
+        cursor.close();
         return contact;
     }
 
@@ -84,7 +84,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 contactList.add(contact);
             } while (cursor.moveToNext());
         }
-
+        cursor.close();
         return contactList;
     }
 
