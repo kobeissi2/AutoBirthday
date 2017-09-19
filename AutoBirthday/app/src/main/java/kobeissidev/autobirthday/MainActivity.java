@@ -5,23 +5,18 @@ import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
 
 import java.text.DateFormatSymbols;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -148,7 +143,7 @@ public class MainActivity extends Activity {
             typeRadioButton[1] = new RadioButton(this);
             typeRadioButton[2] = new RadioButton(this);
             typeRadioButton[0].setText(R.string.SMS);
-            typeRadioButton[1].setText(R.string.Whatsapp);
+            typeRadioButton[1].setText(R.string.WhatsApp);
             typeRadioButton[2].setText(R.string.Off);
             typeRadioGroup[index].setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
             typeRadioGroup[index].addView(typeRadioButton[0]);
