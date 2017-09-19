@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AutoBirthday</string>
+    <string name="vertical_ellipsis">&#8942;</string>
+    <string name="SMS">SMS</string>
+    <string name="Whatsapp">Whatsapp</string>
+    <string name="Off">Off</string>
 </resources>
