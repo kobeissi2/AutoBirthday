@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormatSymbols;
 
@@ -26,21 +27,32 @@ public class Settings extends Activity {
 
         final Permissions permissions = new Permissions(this, Settings.this);
         final Button contactsButton = findViewById(R.id.contactsButton);
+        final Button resetButton = findViewById(R.id.resetButton);
         dbHandler = new DBHandler(this);
 
+        //TODO: Make it update database
         contactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (permissions.getPermission()) {
                     loadContacts();
+                    Toast toast = Toast.makeText(getApplicationContext(),"Contacts are loaded!",Toast.LENGTH_SHORT);
+                    toast.show();
+                    finish();
                 }
             }
         });
-    }
 
-    private void resetSettings(){
-
-        dbHandler.startOver();
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dbHandler.startOver();
+                Toast toast = Toast.makeText(getApplicationContext(),"Table is now empty!",Toast.LENGTH_SHORT);
+                toast.show();
+                loadContacts();
+                finish();
+            }
+        });
     }
 
     private void loadContacts() {
@@ -83,5 +95,4 @@ public class Settings extends Activity {
             cursor.close();
         }
     }
-
 }

@@ -14,6 +14,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.text.DateFormatSymbols;
+import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -32,10 +33,10 @@ public class MainActivity extends Activity {
                 showNoContactDialog();
             } else {
                 displayContacts();
+                setDefaultMessage();
             }
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -86,17 +87,49 @@ public class MainActivity extends Activity {
             typeRadioButton[1] = new RadioButton(this);
             typeRadioButton[2] = new RadioButton(this);
             typeRadioButton[0].setText(R.string.SMS);
-            typeRadioButton[0].setChecked(true);
             typeRadioButton[1].setText(R.string.WhatsApp);
             typeRadioButton[2].setText(R.string.Off);
             typeRadioGroup[index].setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             typeRadioGroup[index].addView(typeRadioButton[0]);
             typeRadioGroup[index].addView(typeRadioButton[1]);
             typeRadioGroup[index].addView(typeRadioButton[2]);
+            typeRadioGroup[index].setId(index + 1);
 
             gridLayout.addView(nameTextView[index]);
             gridLayout.addView(birthdayTextView[index]);
             gridLayout.addView(typeRadioGroup[index]);
+        }
+    }
+
+    private void setDefaultMessage() {
+        List<Contact> contactList = dbHandler.getAllContacts();
+        GridLayout gridLayout = findViewById(R.id.gridLayout);
+        RadioGroup[] radioGroupList = new RadioGroup[gridLayout.getChildCount()];
+
+        RadioGroup radioGroup = (RadioGroup) gridLayout.getChildAt(2);
+
+
+        for (Contact contact : contactList) {
+            RadioButton radioButtonSMS = (RadioButton) radioGroup.getChildAt(0);
+            RadioButton radioButtonWhatsApp = (RadioButton) radioGroup.getChildAt(1);
+            RadioButton radioButtonNone = (RadioButton) radioGroup.getChildAt(2);
+            switch (contact.get_appToUse()) {
+                case "SMS":
+                    radioButtonSMS.setChecked(true);
+                    radioButtonWhatsApp.setChecked(false);
+                    radioButtonNone.setChecked(false);
+                    break;
+                case "WhatsApp":
+                    radioButtonWhatsApp.setChecked(true);
+                    radioButtonSMS.setChecked(false);
+                    radioButtonNone.setChecked(false);
+                    break;
+                default:
+                    radioButtonNone.setChecked(true);
+                    radioButtonWhatsApp.setChecked(false);
+                    radioButtonSMS.setChecked(false);
+                    break;
+            }
         }
     }
 
