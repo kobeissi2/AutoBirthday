@@ -2,16 +2,13 @@ package kobeissidev.autobirthday;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
-import android.database.Cursor;
+import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -28,86 +25,32 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         final Permissions permissions = new Permissions(this, MainActivity.this);
-        final Button contactsButton = findViewById(R.id.contactsButton);
         dbHandler = new DBHandler(this);
 
-        contactsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                contactsButton.setVisibility(View.GONE);
-                if (permissions.getPermission()) {
-                    //CLEARS ALL SETTINGS
-                    dbHandler.startOver();
-                    loadContacts();
-
-                    if (dbHandler.isDatabaseEmpty()) {
-                        showNoContactDialog();
-                    } else {
-                        displayContacts();
-                    }
-                }
-            }
-        });
-    }
-
-    public void showNoContactDialog() {
-        new AlertDialog.Builder(MainActivity.this)
-                .setIcon(android.R.drawable.sym_contact_card)
-                .setTitle("No Contacts!")
-                .setMessage("You do not have any contacts. \nWant to go to settings to load contacts?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
-                    }
-                })
-                .show();
-    }
-
-    private void loadContacts() {
-        ContentResolver contentResolver = getContentResolver();
-        String[] projection = new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME};
-
-        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, projection, null, null,
-                ContactsContract.Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
-
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data._ID));
-                String displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
-
-                String columns[] = {
-                        ContactsContract.CommonDataKinds.Event.START_DATE,
-                        ContactsContract.CommonDataKinds.Event.TYPE,
-                        ContactsContract.CommonDataKinds.Event.MIMETYPE,
-                };
-
-                String where = ContactsContract.CommonDataKinds.Event.TYPE + "=" + ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY +
-                        " and " + ContactsContract.CommonDataKinds.Event.MIMETYPE + " = '" + ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE + "' and " + ContactsContract.Data.CONTACT_ID + " = " + contactId;
-                String sortOrder = ContactsContract.Contacts.DISPLAY_NAME;
-                Cursor birthdayCur = contentResolver.query(ContactsContract.Data.CONTENT_URI, columns, where, null, sortOrder);
-
-                if (birthdayCur != null && birthdayCur.getCount() > 0) {
-                    while (birthdayCur.moveToNext()) {
-                        String birthday = birthdayCur.getString(birthdayCur.getColumnIndex(ContactsContract.CommonDataKinds.Event.START_DATE));
-                        birthday = birthday.substring(2, birthday.length());
-                        Contact contact = new Contact(displayName, birthday, "SMS");
-                        dbHandler.addContact(contact);
-                    }
-                }
-                if (birthdayCur != null) {
-                    birthdayCur.close();
-                }
+        if (permissions.getPermission()) {
+            if (dbHandler.isDatabaseEmpty()) {
+                showNoContactDialog();
+            } else {
+                displayContacts();
             }
         }
-        if (cursor != null) {
-            cursor.close();
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                navigateToSettings();
+                return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     private void displayContacts() {
@@ -124,7 +67,7 @@ public class MainActivity extends Activity {
             nameTextView[index] = new TextView(this);
             nameTextView[index].setTextSize(16);
             nameTextView[index].setPadding(20, 20, 20, 20);
-            nameTextView[index].setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            nameTextView[index].setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             nameTextView[index].setText(dbHandler.getContact(index + 1).get_contactName());
 
             String birthday = dbHandler.getContact(index + 1).get_birthday();
@@ -133,8 +76,8 @@ public class MainActivity extends Activity {
             birthday = birthdayMonth + " " + birthday.substring(3, birthday.length());
             birthdayTextView[index] = new TextView(this);
             birthdayTextView[index].setTextSize(16);
-            birthdayTextView[index].setPadding(0, 20, 0, 20);
-            birthdayTextView[index].setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            birthdayTextView[index].setPadding(20, 20, 20, 20);
+            birthdayTextView[index].setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             birthdayTextView[index].setText(birthday);
 
             typeRadioGroup[index] = new RadioGroup(this);
@@ -143,9 +86,10 @@ public class MainActivity extends Activity {
             typeRadioButton[1] = new RadioButton(this);
             typeRadioButton[2] = new RadioButton(this);
             typeRadioButton[0].setText(R.string.SMS);
+            typeRadioButton[0].setChecked(true);
             typeRadioButton[1].setText(R.string.WhatsApp);
             typeRadioButton[2].setText(R.string.Off);
-            typeRadioGroup[index].setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+            typeRadioGroup[index].setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             typeRadioGroup[index].addView(typeRadioButton[0]);
             typeRadioGroup[index].addView(typeRadioButton[1]);
             typeRadioGroup[index].addView(typeRadioButton[2]);
@@ -154,6 +98,32 @@ public class MainActivity extends Activity {
             gridLayout.addView(birthdayTextView[index]);
             gridLayout.addView(typeRadioGroup[index]);
         }
+    }
+
+    public void navigateToSettings() {
+        Intent intent = new Intent(getBaseContext(), Settings.class);
+        startActivity(intent);
+
+    }
+
+    public void showNoContactDialog() {
+        new AlertDialog.Builder(MainActivity.this)
+                .setIcon(android.R.drawable.sym_contact_card)
+                .setTitle("No Contacts!")
+                .setMessage("You do not have any contacts. \nWant to go to settings to load contacts?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        navigateToSettings();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                })
+                .show();
     }
 
     @Override
