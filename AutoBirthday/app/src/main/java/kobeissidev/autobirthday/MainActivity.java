@@ -33,7 +33,6 @@ public class MainActivity extends Activity {
                 showNoContactDialog();
             } else {
                 displayContacts();
-                setDefaultMessage();
             }
         }
     }
@@ -60,11 +59,9 @@ public class MainActivity extends Activity {
         TextView[] nameTextView = new TextView[count];
         RadioGroup[] typeRadioGroup = new RadioGroup[count];
         RadioButton[] typeRadioButton = new RadioButton[3];
-
         GridLayout gridLayout = findViewById(R.id.gridLayout);
 
         for (int index = 0; index < count; index++) {
-
             nameTextView[index] = new TextView(this);
             nameTextView[index].setTextSize(16);
             nameTextView[index].setPadding(20, 20, 20, 20);
@@ -93,43 +90,29 @@ public class MainActivity extends Activity {
             typeRadioGroup[index].addView(typeRadioButton[0]);
             typeRadioGroup[index].addView(typeRadioButton[1]);
             typeRadioGroup[index].addView(typeRadioButton[2]);
-            typeRadioGroup[index].setId(index + 1);
+
+            String appToUse = dbHandler.getContact(index + 1).get_appToUse();
+            switch (appToUse) {
+                case "SMS":
+                    typeRadioButton[0].setChecked(true);
+                    typeRadioButton[1].setChecked(false);
+                    typeRadioButton[2].setChecked(false);
+                    break;
+                case "WhatsApp":
+                    typeRadioButton[0].setChecked(false);
+                    typeRadioButton[1].setChecked(true);
+                    typeRadioButton[2].setChecked(false);
+                    break;
+                default:
+                    typeRadioButton[0].setChecked(false);
+                    typeRadioButton[1].setChecked(false);
+                    typeRadioButton[2].setChecked(true);
+                    break;
+            }
 
             gridLayout.addView(nameTextView[index]);
             gridLayout.addView(birthdayTextView[index]);
             gridLayout.addView(typeRadioGroup[index]);
-        }
-    }
-
-    private void setDefaultMessage() {
-        List<Contact> contactList = dbHandler.getAllContacts();
-        GridLayout gridLayout = findViewById(R.id.gridLayout);
-        RadioGroup[] radioGroupList = new RadioGroup[gridLayout.getChildCount()];
-
-        RadioGroup radioGroup = (RadioGroup) gridLayout.getChildAt(2);
-
-
-        for (Contact contact : contactList) {
-            RadioButton radioButtonSMS = (RadioButton) radioGroup.getChildAt(0);
-            RadioButton radioButtonWhatsApp = (RadioButton) radioGroup.getChildAt(1);
-            RadioButton radioButtonNone = (RadioButton) radioGroup.getChildAt(2);
-            switch (contact.get_appToUse()) {
-                case "SMS":
-                    radioButtonSMS.setChecked(true);
-                    radioButtonWhatsApp.setChecked(false);
-                    radioButtonNone.setChecked(false);
-                    break;
-                case "WhatsApp":
-                    radioButtonWhatsApp.setChecked(true);
-                    radioButtonSMS.setChecked(false);
-                    radioButtonNone.setChecked(false);
-                    break;
-                default:
-                    radioButtonNone.setChecked(true);
-                    radioButtonWhatsApp.setChecked(false);
-                    radioButtonSMS.setChecked(false);
-                    break;
-            }
         }
     }
 
