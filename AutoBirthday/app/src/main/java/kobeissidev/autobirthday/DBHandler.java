@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
 import android.content.Context;
 import android.content.ContentValues;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,5 +117,12 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase database = getWritableDatabase();
         database.execSQL("drop table " + TABLE_CONTACTS);
         onCreate(database);
+    }
+
+    public void updateContactAppToUse(int id, String appToUseUpdateID) {
+        SQLiteDatabase database = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_APPTOUSE, appToUseUpdateID);
+        database.update(TABLE_CONTACTS, contentValues, COLUMN_APPTOUSE + "= ? AND " + COLUMN_ID + "= ?", new String[]{getContact(id).get_appToUse(), String.valueOf(id)});
     }
 }

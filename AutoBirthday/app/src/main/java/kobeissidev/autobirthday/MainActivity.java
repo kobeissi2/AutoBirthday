@@ -55,65 +55,100 @@ public class MainActivity extends Activity {
 
     private void displayContacts() {
         int count = dbHandler.getContactCount();
-        TextView[] birthdayTextView = new TextView[count];
-        TextView[] nameTextView = new TextView[count];
-        RadioGroup[] typeRadioGroup = new RadioGroup[count];
-        RadioButton[] typeRadioButton = new RadioButton[3];
         GridLayout gridLayout = findViewById(R.id.gridLayout);
 
         for (int index = 0; index < count; index++) {
-            nameTextView[index] = new TextView(this);
-            nameTextView[index].setTextSize(16);
-            nameTextView[index].setPadding(20, 20, 20, 20);
-            nameTextView[index].setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            nameTextView[index].setText(dbHandler.getContact(index + 1).get_contactName());
-
-            String birthday = dbHandler.getContact(index + 1).get_birthday();
-            int birthdayInt = Integer.parseInt(birthday.substring(0, 2));
-            String birthdayMonth = new DateFormatSymbols().getMonths()[birthdayInt - 1];
-            birthday = birthdayMonth + " " + birthday.substring(3, birthday.length());
-            birthdayTextView[index] = new TextView(this);
-            birthdayTextView[index].setTextSize(16);
-            birthdayTextView[index].setPadding(20, 20, 20, 20);
-            birthdayTextView[index].setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            birthdayTextView[index].setText(birthday);
-
-            typeRadioGroup[index] = new RadioGroup(this);
-            typeRadioGroup[index].setOrientation(LinearLayout.HORIZONTAL);
-            typeRadioButton[0] = new RadioButton(this);
-            typeRadioButton[1] = new RadioButton(this);
-            typeRadioButton[2] = new RadioButton(this);
-            typeRadioButton[0].setText(R.string.SMS);
-            typeRadioButton[1].setText(R.string.WhatsApp);
-            typeRadioButton[2].setText(R.string.Off);
-            typeRadioGroup[index].setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            typeRadioGroup[index].addView(typeRadioButton[0]);
-            typeRadioGroup[index].addView(typeRadioButton[1]);
-            typeRadioGroup[index].addView(typeRadioButton[2]);
-
-            String appToUse = dbHandler.getContact(index + 1).get_appToUse();
-            switch (appToUse) {
-                case "SMS":
-                    typeRadioButton[0].setChecked(true);
-                    typeRadioButton[1].setChecked(false);
-                    typeRadioButton[2].setChecked(false);
-                    break;
-                case "WhatsApp":
-                    typeRadioButton[0].setChecked(false);
-                    typeRadioButton[1].setChecked(true);
-                    typeRadioButton[2].setChecked(false);
-                    break;
-                default:
-                    typeRadioButton[0].setChecked(false);
-                    typeRadioButton[1].setChecked(false);
-                    typeRadioButton[2].setChecked(true);
-                    break;
-            }
-
-            gridLayout.addView(nameTextView[index]);
-            gridLayout.addView(birthdayTextView[index]);
-            gridLayout.addView(typeRadioGroup[index]);
+            gridLayout.addView(setName(index));
+            gridLayout.addView(setBirthday(index));
+            gridLayout.addView(setAppToUse(index));
         }
+    }
+
+    private TextView setName(int index) {
+        TextView nameTextView;
+
+        nameTextView = new TextView(this);
+        nameTextView.setTextSize(16);
+        nameTextView.setPadding(20, 20, 20, 20);
+        nameTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        nameTextView.setText(dbHandler.getContact(index + 1).get_contactName());
+
+        return nameTextView;
+    }
+
+    private TextView setBirthday(int index) {
+        TextView birthdayTextView;
+        String birthday = dbHandler.getContact(index + 1).get_birthday();
+        int birthdayInt = Integer.parseInt(birthday.substring(0, 2));
+        String birthdayMonth = new DateFormatSymbols().getMonths()[birthdayInt - 1];
+
+        birthday = birthdayMonth + " " + birthday.substring(3, birthday.length());
+        birthdayTextView = new TextView(this);
+        birthdayTextView.setTextSize(16);
+        birthdayTextView.setPadding(20, 20, 20, 20);
+        birthdayTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        birthdayTextView.setText(birthday);
+
+        return birthdayTextView;
+    }
+
+    private RadioGroup setAppToUse(int index) {
+
+        RadioGroup typeRadioGroup;
+        RadioButton[] typeRadioButton = new RadioButton[3];
+        String appToUse = dbHandler.getContact(index + 1).get_appToUse();
+
+        typeRadioGroup = new RadioGroup(this);
+        typeRadioGroup.setOrientation(LinearLayout.HORIZONTAL);
+        typeRadioButton[0] = new RadioButton(this);
+        typeRadioButton[1] = new RadioButton(this);
+        typeRadioButton[2] = new RadioButton(this);
+        typeRadioButton[0].setText(R.string.SMS);
+        typeRadioButton[1].setText(R.string.WhatsApp);
+        typeRadioButton[2].setText(R.string.Off);
+        typeRadioGroup.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        typeRadioGroup.addView(typeRadioButton[0]);
+        typeRadioGroup.addView(typeRadioButton[1]);
+        typeRadioGroup.addView(typeRadioButton[2]);
+
+        switch (appToUse) {
+            case "SMS":
+                typeRadioButton[0].setChecked(true);
+                typeRadioButton[1].setChecked(false);
+                typeRadioButton[2].setChecked(false);
+                break;
+            case "WhatsApp":
+                typeRadioButton[0].setChecked(false);
+                typeRadioButton[1].setChecked(true);
+                typeRadioButton[2].setChecked(false);
+                break;
+            default:
+                typeRadioButton[0].setChecked(false);
+                typeRadioButton[1].setChecked(false);
+                typeRadioButton[2].setChecked(true);
+                break;
+        }
+        saveRadioGroup(dbHandler.getContact(index + 1), typeRadioGroup);
+
+        return typeRadioGroup;
+    }
+
+    public void saveRadioGroup(final Contact contact, RadioGroup radioGroup) {
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                int index = group.indexOfChild(findViewById(group.getCheckedRadioButtonId()));
+                String appToUseUpdateID = "";
+                if (index == 0) {
+                    appToUseUpdateID = "SMS";
+                } else if (index == 1) {
+                    appToUseUpdateID = "WhatsApp";
+                } else if (index == 2) {
+                    appToUseUpdateID = "Off";
+                }
+                dbHandler.updateContactAppToUse(contact.get_id(), appToUseUpdateID);
+            }
+        });
     }
 
     public void navigateToSettings() {
