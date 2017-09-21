@@ -1,5 +1,7 @@
 package kobeissidev.autobirthday;
 
+import android.util.Log;
+
 public class Contact {
     private int _id;
     private String _contactName;
@@ -12,6 +14,11 @@ public class Contact {
     public Contact(int id, String contactName, String birthday, String appToUse) {
         _id = id;
         _contactName = contactName;
+
+        if (birthday.length() > 5) {
+            birthday = birthday.substring(3, birthday.length());
+        }
+
         _birthday = birthday;
         _appToUse = appToUse;
     }

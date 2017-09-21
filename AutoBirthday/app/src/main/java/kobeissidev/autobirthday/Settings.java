@@ -30,7 +30,6 @@ public class Settings extends Activity {
         final Button resetButton = findViewById(R.id.resetButton);
         dbHandler = new DBHandler(this);
 
-        //TODO: Make it update database
         contactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
