@@ -1,7 +1,5 @@
 package kobeissidev.autobirthday;
 
-import android.util.Log;
-
 public class Contact {
     private int _id;
     private String _contactName;
@@ -15,6 +13,8 @@ public class Contact {
         _id = id;
         _contactName = contactName;
 
+        /*If the contact has a year in their birth date, it would be YY-MM-DD. If not, the birth date would show up as MM-DD.
+        So if the birthday is not the same size as MM-DD, make it the substring that only carries the MM-DD.*/
         if (birthday.length() > 5) {
             birthday = birthday.substring(3, birthday.length());
         }
