@@ -33,6 +33,7 @@ public class DBHandler extends SQLiteOpenHelper {
         database.execSQL(query);
     }
 
+    //TODO: Change this to a better way to upgrade.
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTACTS);
@@ -73,7 +74,6 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-
         if (cursor.moveToFirst()) {
             do {
                 Contact contact = new Contact();
@@ -96,7 +96,6 @@ public class DBHandler extends SQLiteOpenHelper {
         int count = cursor.getCount();
 
         cursor.close();
-
         return count;
     }
 
