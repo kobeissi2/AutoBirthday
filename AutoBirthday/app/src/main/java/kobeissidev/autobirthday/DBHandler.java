@@ -43,7 +43,6 @@ public class DBHandler extends SQLiteOpenHelper {
     public void addContact(Contact contact) {
         SQLiteDatabase database = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-
         contentValues.put(COLUMN_CONTACT_NAME, contact.get_contactName());
         contentValues.put(COLUMN_BIRTHDAY, contact.get_birthday());
         contentValues.put(COLUMN_APPTOUSE, contact.get_appToUse());
@@ -53,27 +52,21 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public Contact getContact(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-
         Cursor cursor = db.query(TABLE_CONTACTS, new String[]{COLUMN_ID, COLUMN_CONTACT_NAME, COLUMN_BIRTHDAY, COLUMN_APPTOUSE},
                 COLUMN_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
-
         Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
                 cursor.getString(1), cursor.getString(2), cursor.getString(3));
-
         cursor.close();
         return contact;
     }
 
     public List<Contact> getAllContacts() {
         List<Contact> contactList = new ArrayList<>();
-
         String selectQuery = "SELECT * FROM " + TABLE_CONTACTS;
-
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
-
         if (cursor.moveToFirst()) {
             do {
                 Contact contact = new Contact();
@@ -94,7 +87,6 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor = database.rawQuery(countQuery, null);
         int count = cursor.getCount();
-
         cursor.close();
         return count;
     }
@@ -102,7 +94,6 @@ public class DBHandler extends SQLiteOpenHelper {
     public boolean isDatabaseEmpty() {
         SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.rawQuery("SELECT * FROM " + TABLE_CONTACTS, null);
-
         if (cursor != null && cursor.getCount() > 0) {
             cursor.close();
             return false;

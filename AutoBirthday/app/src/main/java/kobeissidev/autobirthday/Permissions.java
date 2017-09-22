@@ -21,7 +21,6 @@ public class Permissions {
     private boolean checkPermissions() {
         int permissionCheckContacts = ContextCompat.checkSelfPermission(appContext, Manifest.permission.READ_CONTACTS);
         int permissionCheckSMS = ContextCompat.checkSelfPermission(appContext, Manifest.permission.SEND_SMS);
-
         if (permissionCheckContacts != PackageManager.PERMISSION_GRANTED || permissionCheckSMS != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.READ_CONTACTS) ||
                     ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.SEND_SMS)) {
@@ -30,7 +29,6 @@ public class Permissions {
                 ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS,Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST);
             }
         }
-
         if (permissionCheckContacts == PackageManager.PERMISSION_GRANTED && permissionCheckSMS == PackageManager.PERMISSION_GRANTED) {
             return true;
         }

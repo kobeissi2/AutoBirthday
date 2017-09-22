@@ -18,17 +18,14 @@ import java.text.DateFormatSymbols;
 import java.util.List;
 
 public class MainActivity extends Activity {
-
     DBHandler dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         final Permissions permissions = new Permissions(this, MainActivity.this);
         dbHandler = new DBHandler(this);
-
         if (permissions.getPermission()) {
             if (dbHandler.isDatabaseEmpty()) {
                 showNoContactDialog();
@@ -57,8 +54,7 @@ public class MainActivity extends Activity {
     private void displayContacts() {
         int count = dbHandler.getContactCount();
         GridLayout gridLayout = findViewById(R.id.gridLayout);
-
-        //Creates the textviews and radiobuttons programmatically.
+        //Creates the text views and radio buttons programmatically.
         for (int index = 0; index < count; index++) {
             gridLayout.addView(setName(index));
             gridLayout.addView(setBirthday(index));
@@ -68,13 +64,11 @@ public class MainActivity extends Activity {
 
     private TextView setName(int index) {
         TextView nameTextView;
-
         nameTextView = new TextView(this);
         nameTextView.setTextSize(16);
         nameTextView.setPadding(20, 20, 20, 20);
         nameTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         nameTextView.setText(dbHandler.getContact(index + 1).get_contactName());
-
         return nameTextView;
     }
 
@@ -88,24 +82,20 @@ public class MainActivity extends Activity {
         String birthdayMonth = new DateFormatSymbols().getMonths()[birthdayInt - 1];
         //This shows the month by text then the remaining part of the birthday which is the day.
         birthday = birthdayMonth + " " + birthday.substring(3, birthday.length());
-
         birthdayTextView = new TextView(this);
         birthdayTextView.setTextSize(16);
         birthdayTextView.setPadding(20, 20, 20, 20);
         birthdayTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         birthdayTextView.setText(birthday);
-
         return birthdayTextView;
     }
 
     private RadioGroup setAppToUse(int index) {
-
         RadioGroup typeRadioGroup;
         //SMS, WhatsApp and Off buttons.
         RadioButton[] typeRadioButton = new RadioButton[3];
         //Contact ID's start at one.
         String appToUse = dbHandler.getContact(index + 1).get_appToUse();
-
         typeRadioGroup = new RadioGroup(this);
         //Have the buttons appear horizontally.
         typeRadioGroup.setOrientation(LinearLayout.HORIZONTAL);
@@ -120,7 +110,6 @@ public class MainActivity extends Activity {
         typeRadioGroup.addView(typeRadioButton[0]);
         typeRadioGroup.addView(typeRadioButton[1]);
         typeRadioGroup.addView(typeRadioButton[2]);
-
         //Set the radio button to the one defaulted at.
         switch (appToUse) {
             case "SMS":
@@ -141,7 +130,6 @@ public class MainActivity extends Activity {
         }
         //Save the radio button default to the database.
         saveRadioGroup(dbHandler.getContact(index + 1), typeRadioGroup);
-
         return typeRadioGroup;
     }
 
@@ -168,7 +156,15 @@ public class MainActivity extends Activity {
 
     public void navigateToSettings() {
         Intent intent = new Intent(getBaseContext(), Settings.class);
-        startActivity(intent);
+        startActivityForResult(intent,0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        //Runs when returns from settings to refresh itself.
+        super.onActivityResult(requestCode,resultCode,data);
+        finish();
+        startActivity(getIntent());
     }
 
     public void showNoContactDialog() {
