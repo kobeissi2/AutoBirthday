@@ -1,6 +1,7 @@
 package kobeissidev.autobirthday;
 
 import android.app.Activity;
+import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,7 +15,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+
+import java.text.DateFormatSymbols;
 
 public class Settings extends Activity {
     private DBHandler dbHandler;
@@ -23,7 +28,7 @@ public class Settings extends Activity {
     private CheckBox timeCheckBox;
     private CheckBox birthdayCheckBox;
     private EditText birthdayEditText;
-    private EditText timeEditText;
+    private TextView timeTextView;
     private boolean birthdayChecked;
     private boolean timeChecked;
     private String birthdayText;
@@ -44,7 +49,7 @@ public class Settings extends Activity {
         timeCheckBox = findViewById(R.id.timeCheckBox);
         birthdayCheckBox = findViewById(R.id.birthdayCheckBox);
         birthdayEditText = findViewById(R.id.birthdayEditText);
-        timeEditText = findViewById(R.id.timeEditText);
+        timeTextView = findViewById(R.id.timeTextView);
 
         loadButton();
         reloadButton();
@@ -55,8 +60,6 @@ public class Settings extends Activity {
         setCheckBox(birthdayChecked, birthdayCheckBox);
         timeCheck();
         setCheckBox(timeChecked, timeCheckBox);
-
-
     }
 
     private void setCheckBox(boolean isChecked, CheckBox checkBox) {
@@ -80,7 +83,8 @@ public class Settings extends Activity {
         SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor timeEditor = sharedTime.edit();
         timeEditor.putBoolean("timeChecked", timeChecked);
-        timeEditText.setText(timeText);
+        timeEditor.putString("timeText", timeText);
+        timeTextView.setText("Time to send text: " + timeText + ".");
         timeEditor.apply();
     }
 
@@ -88,12 +92,13 @@ public class Settings extends Activity {
         SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
         birthdayChecked = sharedBirthday.getBoolean("birthdayChecked", false);
         birthdayText = sharedBirthday.getString("birthdayText", "Happy Birthday!");
-        setVisibility(birthdayChecked,birthdayEditText);
+        setVisibility(birthdayChecked, birthdayEditText);
     }
 
     private void setTimePreferences() {
         SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         timeChecked = sharedTime.getBoolean("timeChecked", false);
+        timeText = sharedTime.getString("timeText", "00:00");
     }
 
     private void timeCheck() {
@@ -102,11 +107,11 @@ public class Settings extends Activity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (timeCheckBox.isChecked()) {
                     timeChecked = true;
+                    
                 } else {
                     timeChecked = false;
-                    timeText = "Happy time!";
                 }
-                setVisibility(timeChecked,timeEditText);
+                setVisibility(timeChecked, timeTextView);
                 saveTimePreferences();
             }
         });
@@ -158,7 +163,7 @@ public class Settings extends Activity {
                     birthdayChecked = false;
                     birthdayText = "Happy Birthday!";
                 }
-                setVisibility(birthdayChecked,birthdayEditText);
+                setVisibility(birthdayChecked, birthdayEditText);
                 saveBirthdayPreferences();
             }
         });
@@ -169,6 +174,14 @@ public class Settings extends Activity {
             editText.setVisibility(View.VISIBLE);
         } else {
             editText.setVisibility(View.GONE);
+        }
+    }
+
+    private void setVisibility(boolean checked, TextView textView) {
+        if (checked) {
+            textView.setVisibility(View.VISIBLE);
+        } else {
+            textView.setVisibility(View.GONE);
         }
     }
 
@@ -212,8 +225,8 @@ public class Settings extends Activity {
         super.onBackPressed();
         saveBirthdayPreferences();
         saveTimePreferences();
-        setVisibility(birthdayChecked,birthdayEditText);
-        setVisibility(timeChecked,timeEditText);
+        setVisibility(birthdayChecked, birthdayEditText);
+        setVisibility(timeChecked, timeTextView);
     }
 
     @Override
@@ -221,8 +234,8 @@ public class Settings extends Activity {
         super.onPause();
         saveBirthdayPreferences();
         saveTimePreferences();
-        setVisibility(birthdayChecked,birthdayEditText);
-        setVisibility(timeChecked,timeEditText);
+        setVisibility(birthdayChecked, birthdayEditText);
+        setVisibility(timeChecked, timeTextView);
     }
 
     @Override
@@ -230,8 +243,8 @@ public class Settings extends Activity {
         super.onStop();
         saveBirthdayPreferences();
         saveTimePreferences();
-        setVisibility(birthdayChecked,birthdayEditText);
-        setVisibility(timeChecked,timeEditText);
+        setVisibility(birthdayChecked, birthdayEditText);
+        setVisibility(timeChecked, timeTextView);
     }
 
     @Override
@@ -239,7 +252,7 @@ public class Settings extends Activity {
         super.onDestroy();
         saveBirthdayPreferences();
         saveTimePreferences();
-        setVisibility(birthdayChecked,birthdayEditText);
-        setVisibility(timeChecked,timeEditText);
+        setVisibility(birthdayChecked, birthdayEditText);
+        setVisibility(timeChecked, timeTextView);
     }
 }
