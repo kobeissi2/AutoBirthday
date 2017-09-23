@@ -23,9 +23,11 @@ public class Settings extends Activity {
     private CheckBox timeCheckBox;
     private CheckBox birthdayCheckBox;
     private EditText birthdayEditText;
+    private EditText timeEditText;
     private boolean birthdayChecked;
     private boolean timeChecked;
     private String birthdayText;
+    private String timeText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,7 @@ public class Settings extends Activity {
         timeCheckBox = findViewById(R.id.timeCheckBox);
         birthdayCheckBox = findViewById(R.id.birthdayCheckBox);
         birthdayEditText = findViewById(R.id.birthdayEditText);
+        timeEditText = findViewById(R.id.timeEditText);
 
         loadButton();
         reloadButton();
@@ -77,6 +80,7 @@ public class Settings extends Activity {
         SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor timeEditor = sharedTime.edit();
         timeEditor.putBoolean("timeChecked", timeChecked);
+        timeEditText.setText(timeText);
         timeEditor.apply();
     }
 
@@ -84,7 +88,7 @@ public class Settings extends Activity {
         SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
         birthdayChecked = sharedBirthday.getBoolean("birthdayChecked", false);
         birthdayText = sharedBirthday.getString("birthdayText", "Happy Birthday!");
-        setBirthdayVisibility();
+        setVisibility(birthdayChecked,birthdayEditText);
     }
 
     private void setTimePreferences() {
@@ -96,7 +100,13 @@ public class Settings extends Activity {
         timeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                timeChecked = timeCheckBox.isChecked();
+                if (timeCheckBox.isChecked()) {
+                    timeChecked = true;
+                } else {
+                    timeChecked = false;
+                    timeText = "Happy time!";
+                }
+                setVisibility(timeChecked,timeEditText);
                 saveTimePreferences();
             }
         });
@@ -144,23 +154,21 @@ public class Settings extends Activity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (birthdayCheckBox.isChecked()) {
                     birthdayChecked = true;
-
                 } else {
                     birthdayChecked = false;
                     birthdayText = "Happy Birthday!";
                 }
-                Log.e("BDAY", birthdayText);
-                setBirthdayVisibility();
+                setVisibility(birthdayChecked,birthdayEditText);
                 saveBirthdayPreferences();
             }
         });
     }
 
-    private void setBirthdayVisibility() {
-        if (birthdayChecked) {
-            birthdayEditText.setVisibility(View.VISIBLE);
+    private void setVisibility(boolean checked, EditText editText) {
+        if (checked) {
+            editText.setVisibility(View.VISIBLE);
         } else {
-            birthdayEditText.setVisibility(View.GONE);
+            editText.setVisibility(View.GONE);
         }
     }
 
@@ -203,31 +211,35 @@ public class Settings extends Activity {
     public void onBackPressed() {
         super.onBackPressed();
         saveBirthdayPreferences();
-        setBirthdayVisibility();
         saveTimePreferences();
+        setVisibility(birthdayChecked,birthdayEditText);
+        setVisibility(timeChecked,timeEditText);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         saveBirthdayPreferences();
-        setBirthdayVisibility();
         saveTimePreferences();
+        setVisibility(birthdayChecked,birthdayEditText);
+        setVisibility(timeChecked,timeEditText);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         saveBirthdayPreferences();
-        setBirthdayVisibility();
         saveTimePreferences();
+        setVisibility(birthdayChecked,birthdayEditText);
+        setVisibility(timeChecked,timeEditText);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         saveBirthdayPreferences();
-        setBirthdayVisibility();
         saveTimePreferences();
+        setVisibility(birthdayChecked,birthdayEditText);
+        setVisibility(timeChecked,timeEditText);
     }
 }
