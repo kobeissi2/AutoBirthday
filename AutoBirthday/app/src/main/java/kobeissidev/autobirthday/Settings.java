@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -15,27 +16,26 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.File;
-
 public class Settings extends Activity {
-    private File file;
-    DBHandler dbHandler;
-    Permissions permissions;
-    Button contactsButton;
-    Button resetButton;
-    CheckBox timeCheckBox;
-    CheckBox birthdayCheckBox;
-    EditText birthdayEditText;
-    boolean birthdayChecked;
-    boolean timeChecked;
+    private DBHandler dbHandler;
+    private Button contactsButton;
+    private Button resetButton;
+    private CheckBox timeCheckBox;
+    private CheckBox birthdayCheckBox;
+    private EditText birthdayEditText;
+    private boolean birthdayChecked;
+    private boolean timeChecked;
+    private String birthdayText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        getActionBar().setTitle("Settings");
 
-        permissions = new Permissions(this, Settings.this);
+        if (getActionBar() != null) {
+            getActionBar().setTitle("Settings");
+        }
+
         contactsButton = findViewById(R.id.contactsButton);
         resetButton = findViewById(R.id.resetButton);
         dbHandler = new DBHandler(this);
@@ -52,6 +52,8 @@ public class Settings extends Activity {
         setCheckBox(birthdayChecked, birthdayCheckBox);
         timeCheck();
         setCheckBox(timeChecked, timeCheckBox);
+
+
     }
 
     private void setCheckBox(boolean isChecked, CheckBox checkBox) {
@@ -62,27 +64,30 @@ public class Settings extends Activity {
         }
     }
 
-    public void saveBirthdayPreferences() {
+    private void saveBirthdayPreferences() {
         SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor birthdayEditor = sharedBirthday.edit();
         birthdayEditor.putBoolean("birthdayChecked", birthdayChecked);
+        birthdayEditor.putString("birthdayText", birthdayText);
+        birthdayEditText.setText(birthdayText);
         birthdayEditor.apply();
     }
 
-    public void saveTimePreferences() {
+    private void saveTimePreferences() {
         SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor timeEditor = sharedTime.edit();
         timeEditor.putBoolean("timeChecked", timeChecked);
         timeEditor.apply();
     }
 
-    public void setBirthdayPreferences() {
+    private void setBirthdayPreferences() {
         SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
         birthdayChecked = sharedBirthday.getBoolean("birthdayChecked", false);
+        birthdayText = sharedBirthday.getString("birthdayText", "Happy Birthday!");
         setBirthdayVisibility();
     }
 
-    public void setTimePreferences() {
+    private void setTimePreferences() {
         SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         timeChecked = sharedTime.getBoolean("timeChecked", false);
     }
@@ -91,11 +96,7 @@ public class Settings extends Activity {
         timeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (timeCheckBox.isChecked()) {
-                    timeChecked = true;
-                } else {
-                    timeChecked = false;
-                }
+                timeChecked = timeCheckBox.isChecked();
                 saveTimePreferences();
             }
         });
@@ -128,20 +129,27 @@ public class Settings extends Activity {
         });
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ENTER && birthdayChecked)) {
+            birthdayText = birthdayEditText.getText().toString();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     private void birthdayCheck() {
 
         birthdayCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
                 if (birthdayCheckBox.isChecked()) {
                     birthdayChecked = true;
-                    if (birthdayEditText.length() == 0) {
-                        birthdayEditText.setText(R.string.happy_birthday);
-                    }
+
                 } else {
                     birthdayChecked = false;
+                    birthdayText = "Happy Birthday!";
                 }
+                Log.e("BDAY", birthdayText);
                 setBirthdayVisibility();
                 saveBirthdayPreferences();
             }
@@ -195,6 +203,7 @@ public class Settings extends Activity {
     public void onBackPressed() {
         super.onBackPressed();
         saveBirthdayPreferences();
+        setBirthdayVisibility();
         saveTimePreferences();
     }
 
@@ -202,6 +211,7 @@ public class Settings extends Activity {
     public void onPause() {
         super.onPause();
         saveBirthdayPreferences();
+        setBirthdayVisibility();
         saveTimePreferences();
     }
 
@@ -209,6 +219,7 @@ public class Settings extends Activity {
     public void onStop() {
         super.onStop();
         saveBirthdayPreferences();
+        setBirthdayVisibility();
         saveTimePreferences();
     }
 
@@ -216,6 +227,7 @@ public class Settings extends Activity {
     public void onDestroy() {
         super.onDestroy();
         saveBirthdayPreferences();
+        setBirthdayVisibility();
         saveTimePreferences();
     }
 }

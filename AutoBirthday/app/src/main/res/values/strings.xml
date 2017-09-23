@@ -13,5 +13,4 @@
     <string name="reload_text_view">"Reset and Reload Contacts:"</string>
     <string name="reload_button">"Reload Contacts"</string>
     <string name="load_text_view">"Load New Contacts:"</string>
-    <string name="happy_birthday">"Happy Birthday!"</string>
 </resources>
