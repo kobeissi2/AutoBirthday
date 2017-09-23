@@ -27,6 +27,7 @@ public class Settings extends Activity {
     CheckBox birthdayCheckBox;
     EditText birthdayEditText;
     boolean birthdayChecked;
+    boolean timeChecked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,30 +45,62 @@ public class Settings extends Activity {
 
         loadButton();
         reloadButton();
-        setPreferences();
-        if (birthdayChecked) {
-            birthdayCheckBox.setChecked(true);
-        } else {
-            birthdayCheckBox.setChecked(false);
-        }
+        setBirthdayPreferences();
+        setTimePreferences();
 
         birthdayCheck();
+        setCheckBox(birthdayChecked, birthdayCheckBox);
+        timeCheck();
+        setCheckBox(timeChecked, timeCheckBox);
     }
 
-    public void savePreferences() {
-        SharedPreferences sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("birthdayChecked", birthdayChecked);
-        editor.apply();
+    private void setCheckBox(boolean isChecked, CheckBox checkBox) {
+        if (isChecked) {
+            checkBox.setChecked(true);
+        } else {
+            checkBox.setChecked(false);
+        }
     }
 
-    public void setPreferences() {
-        SharedPreferences sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        birthdayChecked = sharedPreferences.getBoolean("birthdayChecked", false);
+    public void saveBirthdayPreferences() {
+        SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor birthdayEditor = sharedBirthday.edit();
+        birthdayEditor.putBoolean("birthdayChecked", birthdayChecked);
+        birthdayEditor.apply();
+    }
+
+    public void saveTimePreferences() {
+        SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor timeEditor = sharedTime.edit();
+        timeEditor.putBoolean("timeChecked", timeChecked);
+        timeEditor.apply();
+    }
+
+    public void setBirthdayPreferences() {
+        SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
+        birthdayChecked = sharedBirthday.getBoolean("birthdayChecked", false);
         setBirthdayVisibility();
     }
 
-   
+    public void setTimePreferences() {
+        SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
+        timeChecked = sharedTime.getBoolean("timeChecked", false);
+    }
+
+    private void timeCheck() {
+        timeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (timeCheckBox.isChecked()) {
+                    timeChecked = true;
+                } else {
+                    timeChecked = false;
+                }
+                saveTimePreferences();
+            }
+        });
+    }
+
     private void loadButton() {
         contactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,7 +143,7 @@ public class Settings extends Activity {
                     birthdayChecked = false;
                 }
                 setBirthdayVisibility();
-                savePreferences();
+                saveBirthdayPreferences();
             }
         });
     }
@@ -122,6 +155,7 @@ public class Settings extends Activity {
             birthdayEditText.setVisibility(View.GONE);
         }
     }
+
     public static void loadContacts(Context context, DBHandler dbHandler) {
         ContentResolver contentResolver = context.getContentResolver();
         String[] projection = new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME};
@@ -160,24 +194,28 @@ public class Settings extends Activity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        savePreferences();
+        saveBirthdayPreferences();
+        saveTimePreferences();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        savePreferences();
+        saveBirthdayPreferences();
+        saveTimePreferences();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        savePreferences();
+        saveBirthdayPreferences();
+        saveTimePreferences();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        savePreferences();
+        saveBirthdayPreferences();
+        saveTimePreferences();
     }
 }
