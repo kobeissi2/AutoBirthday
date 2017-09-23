@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridLayout;
@@ -28,10 +29,6 @@ import static kobeissidev.autobirthday.Settings.loadContacts;
 
 public class MainActivity extends Activity {
     DBHandler dbHandler;
-    private File path;
-    private File file;
-    private String[] messageToSend;
-    private String message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +37,6 @@ public class MainActivity extends Activity {
         final Permissions permissions = new Permissions(this, MainActivity.this);
         dbHandler = new DBHandler(this);
         boolean isFirst = MyPreferences.isFirst(MainActivity.this);
-        path = this.getFilesDir();
-        file = new File(path, "message.txt");
-
-        if(file.length()==0){
-            messageToSend=new String[]{"Happy Birthday!"};
-            Save(file,messageToSend);
-        }else{
-            messageToSend=Load(file);
-            message=messageToSend[0];
-        }
 
         if (permissions.getPermission()) {
             loadContacts(getApplicationContext(), dbHandler);
@@ -58,74 +45,6 @@ public class MainActivity extends Activity {
         if (isFirst) {
             run();
         }
-    }
-
-    public static void Save(File file, String[] data) {
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            try {
-                for (int index = 0; index < data.length; index++) {
-                    fileOutputStream.write(data[index].getBytes());
-                    if (index < data.length - 1) {
-                        fileOutputStream.write("\n".getBytes());
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } finally {
-            try {
-                fileOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static String[] Load(File file) {
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-        String test;
-        int value = 0;
-        try {
-            while ((test = bufferedReader.readLine()) != null) {
-                value++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            fileInputStream.getChannel().position(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String[] array = new String[value];
-
-        String line;
-        int index = 0;
-        try {
-            while ((line = bufferedReader.readLine()) != null) {
-                array[index] = line;
-                index++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return array;
     }
 
     private void run() {

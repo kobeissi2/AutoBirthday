@@ -124,9 +124,9 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_CONTACT_NAME,contact.get_contactName());
         contentValues.put(COLUMN_BIRTHDAY,contact.get_birthday());
-        contentValues.put(COLUMN_APPTOUSE,contact.get_appToUse());
         int id = getUniqueID(contact);
         if(id==-1){
+            contentValues.put(COLUMN_APPTOUSE,contact.get_appToUse());
             database.insert(TABLE_CONTACTS, null, contentValues);
         }
         else{

@@ -1,15 +1,17 @@
 <resources>
     <string name="app_name">AutoBirthday</string>
-    <string name="vertical_ellipsis">&#8942;</string>
     <string name="SMS">SMS</string>
     <string name="WhatsApp">WhatsApp</string>
     <string name="Off">Off</string>
-
-    <string name="title_first_section">Contact</string>
-    <string name="title_second_section">Message</string>
-    <string name="title_third_section">About</string>
-
+    <string name="title_first_section">Contact:</string>
+    <string name="title_second_section">Birthday:</string>
+    <string name="title_third_section">Time:</string>
     <string name="settings">"Settings"</string>
     <string name="load_contacts">"Load Contacts"</string>
-
+    <string name="custom_text_time">"Custom Time To Send?"</string>
+    <string name="custom_text_bday">"Custom Birthday Message?"</string>
+    <string name="reload_text_view">"Reset and Reload Contacts:"</string>
+    <string name="reload_button">"Reload Contacts"</string>
+    <string name="load_text_view">"Load New Contacts:"</string>
+    <string name="happy_birthday">"Happy Birthday!"</string>
 </resources>

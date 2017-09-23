@@ -3,27 +3,21 @@ package kobeissidev.autobirthday;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.GridLayout;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.text.DateFormatSymbols;
-
-import static kobeissidev.autobirthday.MainActivity.Save;
 
 public class Settings extends Activity {
-    private File path;
     private File file;
     DBHandler dbHandler;
     Permissions permissions;
@@ -32,62 +26,102 @@ public class Settings extends Activity {
     CheckBox timeCheckBox;
     CheckBox birthdayCheckBox;
     EditText birthdayEditText;
+    boolean birthdayChecked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        getActionBar().setTitle("Settings");
+
         permissions = new Permissions(this, Settings.this);
         contactsButton = findViewById(R.id.contactsButton);
         resetButton = findViewById(R.id.resetButton);
         dbHandler = new DBHandler(this);
-        timeCheckBox= findViewById(R.id.timeCheckBox);
-        birthdayCheckBox= findViewById(R.id.birthdayCheckBox);
-        birthdayEditText=findViewById(R.id.birthdayEditText);
-        path = this.getFilesDir();
-        file = new File(path, "message.txt");
+        timeCheckBox = findViewById(R.id.timeCheckBox);
+        birthdayCheckBox = findViewById(R.id.birthdayCheckBox);
+        birthdayEditText = findViewById(R.id.birthdayEditText);
 
         loadButton();
         reloadButton();
+        setPreferences();
+        if (birthdayChecked) {
+            birthdayCheckBox.setChecked(true);
+        } else {
+            birthdayCheckBox.setChecked(false);
+        }
+
         birthdayCheck();
     }
 
-    private void loadButton(){
+    public void savePreferences() {
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("birthdayChecked", birthdayChecked);
+        editor.apply();
+    }
+
+    public void setPreferences() {
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        birthdayChecked = sharedPreferences.getBoolean("birthdayChecked", false);
+        setBirthdayVisibility();
+    }
+
+   
+    private void loadButton() {
         contactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (permissions.getPermission()) {
-                    loadContacts(getApplicationContext(),dbHandler);
-                    Toast toast = Toast.makeText(getApplicationContext(), "Contacts are loaded!", Toast.LENGTH_SHORT);
-                    toast.show();
-                    setResult(0);
-                    finish();
-                }
-            }
-        });
-    }
-
-    private void reloadButton(){
-        resetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dbHandler.startOver();
-                Toast toast = Toast.makeText(getApplicationContext(), "Table is now empty! Loading contacts!", Toast.LENGTH_SHORT);
+                loadContacts(getApplicationContext(), dbHandler);
+                Toast toast = Toast.makeText(getApplicationContext(), "Contacts are loaded!", Toast.LENGTH_SHORT);
                 toast.show();
-                loadContacts(getApplicationContext(),dbHandler);
                 setResult(0);
                 finish();
             }
         });
     }
 
-    private void birthdayCheck(){
-        if(birthdayCheckBox.isChecked()){
-            birthdayEditText.setVisibility(View.VISIBLE);
-        }
-        Save(file,new String[]{birthdayEditText.getText().toString()});
+    private void reloadButton() {
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dbHandler.startOver();
+                Toast toast = Toast.makeText(getApplicationContext(), "Table is now empty! Loading contacts!", Toast.LENGTH_SHORT);
+                toast.show();
+                loadContacts(getApplicationContext(), dbHandler);
+                setResult(0);
+                finish();
+            }
+        });
     }
 
+    private void birthdayCheck() {
+
+        birthdayCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if (birthdayCheckBox.isChecked()) {
+                    birthdayChecked = true;
+                    if (birthdayEditText.length() == 0) {
+                        birthdayEditText.setText(R.string.happy_birthday);
+                    }
+                } else {
+                    birthdayChecked = false;
+                }
+                setBirthdayVisibility();
+                savePreferences();
+            }
+        });
+    }
+
+    private void setBirthdayVisibility() {
+        if (birthdayChecked) {
+            birthdayEditText.setVisibility(View.VISIBLE);
+        } else {
+            birthdayEditText.setVisibility(View.GONE);
+        }
+    }
     public static void loadContacts(Context context, DBHandler dbHandler) {
         ContentResolver contentResolver = context.getContentResolver();
         String[] projection = new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME};
@@ -121,5 +155,29 @@ public class Settings extends Activity {
         if (cursor != null) {
             cursor.close();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        savePreferences();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        savePreferences();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        savePreferences();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        savePreferences();
     }
 }
