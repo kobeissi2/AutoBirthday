@@ -2,10 +2,11 @@ package kobeissidev.autobirthday;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridLayout;
@@ -14,11 +15,23 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DateFormatSymbols;
-import java.util.List;
+
+import static kobeissidev.autobirthday.Settings.loadContacts;
 
 public class MainActivity extends Activity {
     DBHandler dbHandler;
+    private File path;
+    private File file;
+    private String[] messageToSend;
+    private String message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +39,100 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         final Permissions permissions = new Permissions(this, MainActivity.this);
         dbHandler = new DBHandler(this);
+        boolean isFirst = MyPreferences.isFirst(MainActivity.this);
+        path = this.getFilesDir();
+        file = new File(path, "message.txt");
+
+        if(file.length()==0){
+            messageToSend=new String[]{"Happy Birthday!"};
+            Save(file,messageToSend);
+        }else{
+            messageToSend=Load(file);
+            message=messageToSend[0];
+        }
+
         if (permissions.getPermission()) {
-            if (dbHandler.isDatabaseEmpty()) {
-                showNoContactDialog();
-            } else {
-                displayContacts();
+            loadContacts(getApplicationContext(), dbHandler);
+            run();
+        }
+        if (isFirst) {
+            run();
+        }
+    }
+
+    public static void Save(File file, String[] data) {
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            try {
+                for (int index = 0; index < data.length; index++) {
+                    fileOutputStream.write(data[index].getBytes());
+                    if (index < data.length - 1) {
+                        fileOutputStream.write("\n".getBytes());
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        } finally {
+            try {
+                fileOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static String[] Load(File file) {
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+        String test;
+        int value = 0;
+        try {
+            while ((test = bufferedReader.readLine()) != null) {
+                value++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            fileInputStream.getChannel().position(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String[] array = new String[value];
+
+        String line;
+        int index = 0;
+        try {
+            while ((line = bufferedReader.readLine()) != null) {
+                array[index] = line;
+                index++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return array;
+    }
+
+    private void run() {
+        if (dbHandler.isDatabaseEmpty()) {
+            showNoContactDialog();
+        } else {
+            displayContacts();
         }
     }
 
@@ -45,10 +146,25 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                navigateToSettings();
+                startActivityForResult(new Intent(getApplicationContext(), Settings.class), 0);
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static class MyPreferences {
+        private static final String MY_PREFERENCES = "my_preferences";
+
+        public static boolean isFirst(Context context) {
+            final SharedPreferences sharedPreferences = context.getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+            final boolean first = sharedPreferences.getBoolean("is_first", true);
+            if (first) {
+                final SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("is_first", false);
+                editor.commit();
+            }
+            return first;
+        }
     }
 
     private void displayContacts() {
@@ -154,15 +270,10 @@ public class MainActivity extends Activity {
         });
     }
 
-    public void navigateToSettings() {
-        Intent intent = new Intent(getBaseContext(), Settings.class);
-        startActivityForResult(intent,0);
-    }
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //Runs when returns from settings to refresh itself.
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
         finish();
         startActivity(getIntent());
     }
@@ -175,7 +286,7 @@ public class MainActivity extends Activity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        navigateToSettings();
+                        startActivityForResult(new Intent(getApplicationContext(), Settings.class), 0);
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {

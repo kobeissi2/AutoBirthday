@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
 import android.content.Context;
 import android.content.ContentValues;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,22 +39,13 @@ public class DBHandler extends SQLiteOpenHelper {
         onCreate(database);
     }
 
-    public void addContact(Contact contact) {
-        SQLiteDatabase database = getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_CONTACT_NAME, contact.get_contactName());
-        contentValues.put(COLUMN_BIRTHDAY, contact.get_birthday());
-        contentValues.put(COLUMN_APPTOUSE, contact.get_appToUse());
-        database.insert(TABLE_CONTACTS, null, contentValues);
-        database.close();
-    }
-
     public Contact getContact(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query(TABLE_CONTACTS, new String[]{COLUMN_ID, COLUMN_CONTACT_NAME, COLUMN_BIRTHDAY, COLUMN_APPTOUSE},
                 COLUMN_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
-        if (cursor != null)
+        if (cursor != null){
             cursor.moveToFirst();
+        }
         Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
                 cursor.getString(1), cursor.getString(2), cursor.getString(3));
         cursor.close();
@@ -114,5 +104,34 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_APPTOUSE, appToUseUpdateID);
         database.update(TABLE_CONTACTS, contentValues, COLUMN_APPTOUSE + "= ? AND " + COLUMN_ID + "= ?", new String[]{getContact(id).get_appToUse(), String.valueOf(id)});
+    }
+
+    public int getUniqueID(Contact contact) {
+        SQLiteDatabase database = getWritableDatabase();
+        Cursor cursor = database.query(TABLE_CONTACTS, new String[]{"_id"}, COLUMN_CONTACT_NAME + "= ? AND " + COLUMN_BIRTHDAY + "= ?",
+                new String[]{contact.get_contactName(), contact.get_birthday()}, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int cursorValue = cursor.getInt(cursor.getColumnIndex("_id"));
+            cursor.close();
+            return cursorValue;
+        }
+        cursor.close();
+        return -1;
+    }
+
+    public void insertOrUpdate(Contact contact){
+        SQLiteDatabase database = getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_CONTACT_NAME,contact.get_contactName());
+        contentValues.put(COLUMN_BIRTHDAY,contact.get_birthday());
+        contentValues.put(COLUMN_APPTOUSE,contact.get_appToUse());
+        int id = getUniqueID(contact);
+        if(id==-1){
+            database.insert(TABLE_CONTACTS, null, contentValues);
+        }
+        else{
+            database.update(TABLE_CONTACTS, contentValues, "_id=?", new String[]{String.valueOf(id)});
+        }
+            database.close();
     }
 }
