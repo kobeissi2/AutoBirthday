@@ -20,6 +20,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.text.DateFormatSymbols;
+import java.util.Calendar;
 
 public class Settings extends Activity {
     private DBHandler dbHandler;
@@ -101,13 +102,28 @@ public class Settings extends Activity {
         timeText = sharedTime.getString("timeText", "00:00");
     }
 
+    private void showTimePicker() {
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int minute = Calendar.getInstance().get(Calendar.MINUTE);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay,
+                                          int minute) {
+
+                        timeTextView.setText(hourOfDay + ":" + minute);
+                    }
+                }, hour, minute, false);
+        timePickerDialog.show();
+    }
+
     private void timeCheck() {
         timeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (timeCheckBox.isChecked()) {
                     timeChecked = true;
-                    
+                    showTimePicker();
                 } else {
                     timeChecked = false;
                 }
