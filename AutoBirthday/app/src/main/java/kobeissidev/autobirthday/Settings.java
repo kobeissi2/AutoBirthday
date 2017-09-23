@@ -85,7 +85,7 @@ public class Settings extends Activity {
         SharedPreferences.Editor timeEditor = sharedTime.edit();
         timeEditor.putBoolean("timeChecked", timeChecked);
         timeEditor.putString("timeText", timeText);
-        timeTextView.setText("Time to send text: " + timeText + ".");
+        timeTextView.setText(timeText);
         timeEditor.apply();
     }
 
@@ -99,7 +99,7 @@ public class Settings extends Activity {
     private void setTimePreferences() {
         SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         timeChecked = sharedTime.getBoolean("timeChecked", false);
-        timeText = sharedTime.getString("timeText", "00:00");
+        timeText = sharedTime.getString("timeText", "Time to send text: 00:00.");
     }
 
     private void showTimePicker() {
@@ -110,8 +110,7 @@ public class Settings extends Activity {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay,
                                           int minute) {
-
-                        timeTextView.setText(hourOfDay + ":" + minute);
+                        timeTextView.setText("Time to send text: " + hourOfDay + ":" + minute + ".");
                     }
                 }, hour, minute, false);
         timePickerDialog.show();
@@ -123,7 +122,12 @@ public class Settings extends Activity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (timeCheckBox.isChecked()) {
                     timeChecked = true;
-                    showTimePicker();
+                    if (timeTextView.getText().toString().equals( timeText)) {
+                        showTimePicker();
+                    }
+                    Log.e("Test", timeTextView.getText().toString());
+                    Log.e("Compared", "Time to send text: " + timeText + ".");
+
                 } else {
                     timeChecked = false;
                 }
@@ -164,6 +168,9 @@ public class Settings extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ENTER && birthdayChecked)) {
             birthdayText = birthdayEditText.getText().toString();
+        }
+        if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ENTER && timeChecked)) {
+            timeText = timeTextView.getText().toString();
         }
         return super.onKeyDown(keyCode, event);
     }
