@@ -25,6 +25,7 @@ public class SMS extends Activity {
         timeBool = sharedTime.getBoolean("timeChecked", false);
     }
 
+    //TEMPORARY: TODO: Make SMS service and add timer to send on set time.
     public static void test(Context context) {
         isUser24Hour = DateFormat.is24HourFormat(context.getApplicationContext());
         setBirthdayPreferences(context.getApplicationContext());
