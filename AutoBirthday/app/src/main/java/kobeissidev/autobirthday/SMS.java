@@ -7,9 +7,9 @@ import android.text.format.DateFormat;
 import android.util.Log;
 
 public class SMS extends Activity {
-    private static String timeToSend = "";
+    private static String timeToSend;
     private static boolean timeBool;
-    private static String messageToSend = "";
+    private static String messageToSend;
     private static boolean messageBool;
     private static boolean isUser24Hour;
 
@@ -41,7 +41,8 @@ public class SMS extends Activity {
                 timeToSend = "Time to send text: 12:00 AM";
             }
         }
-        Log.e("TTS", timeToSend);
-        Log.e("MTS", messageToSend);
+
+
+
     }
 }

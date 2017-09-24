@@ -9,12 +9,9 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -23,15 +20,14 @@ import android.widget.Toast;
 import java.util.Calendar;
 
 public class Settings extends Activity {
-    private DBHandler dbHandler;
-    private Button contactsButton;
-    private Button resetButton;
     private CheckBox timeCheckBox;
     private CheckBox birthdayCheckBox;
+    private CheckBox defaultLoadCheckBox;
     private EditText birthdayEditText;
     private TextView timeTextView;
     private boolean birthdayChecked;
     private boolean timeChecked;
+    private boolean loadChecked;
     private String birthdayText;
     private String timeText;
 
@@ -44,23 +40,27 @@ public class Settings extends Activity {
             getActionBar().setTitle("Settings");
         }
 
-        contactsButton = findViewById(R.id.contactsButton);
-        resetButton = findViewById(R.id.resetButton);
-        dbHandler = new DBHandler(this);
         timeCheckBox = findViewById(R.id.timeCheckBox);
         birthdayCheckBox = findViewById(R.id.birthdayCheckBox);
+        defaultLoadCheckBox = findViewById(R.id.defaultLoadCheckBox);
         birthdayEditText = findViewById(R.id.birthdayEditText);
         timeTextView = findViewById(R.id.timeTextView);
 
-        loadButton();
-        reloadButton();
         setBirthdayPreferences();
         setTimePreferences();
+        setLoadPreferences();
 
         birthdayCheck(findViewById(android.R.id.content));
         setCheckBox(birthdayChecked, birthdayCheckBox);
         timeCheck(findViewById(android.R.id.content));
         setCheckBox(timeChecked, timeCheckBox);
+        defaultLoad(findViewById(android.R.id.content));
+        setCheckBox(loadChecked, defaultLoadCheckBox);
+    }
+
+    public static boolean getLoadChecked(Context context){
+        SharedPreferences sharedTime = context.getSharedPreferences("loadPrefs", Context.MODE_PRIVATE);
+        return sharedTime.getBoolean("loadChecked", false);
     }
 
     private void setCheckBox(boolean isChecked, CheckBox checkBox) {
@@ -69,24 +69,6 @@ public class Settings extends Activity {
         } else {
             checkBox.setChecked(false);
         }
-    }
-
-    private void saveBirthdayPreferences() {
-        SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor birthdayEditor = sharedBirthday.edit();
-        birthdayEditor.putBoolean("birthdayChecked", birthdayChecked);
-        birthdayEditor.putString("birthdayText", birthdayText);
-        birthdayEditText.setText(birthdayText);
-        birthdayEditor.apply();
-    }
-
-    private void saveTimePreferences() {
-        SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor timeEditor = sharedTime.edit();
-        timeEditor.putBoolean("timeChecked", timeChecked);
-        timeEditor.putString("timeText", timeText);
-        timeTextView.setText(timeText);
-        timeEditor.apply();
     }
 
     private void setBirthdayPreferences() {
@@ -103,6 +85,15 @@ public class Settings extends Activity {
         setVisibility(birthdayChecked, birthdayEditText);
     }
 
+    private void saveBirthdayPreferences() {
+        SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor birthdayEditor = sharedBirthday.edit();
+        birthdayEditor.putBoolean("birthdayChecked", birthdayChecked);
+        birthdayEditor.putString("birthdayText", birthdayText);
+        birthdayEditText.setText(birthdayText);
+        birthdayEditor.apply();
+    }
+
     private void setTimePreferences() {
         SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         timeChecked = sharedTime.getBoolean("timeChecked", false);
@@ -113,6 +104,33 @@ public class Settings extends Activity {
         } else {
             timeCheckBox.setChecked(false);
         }
+    }
+
+    private void saveTimePreferences() {
+        SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor timeEditor = sharedTime.edit();
+        timeEditor.putBoolean("timeChecked", timeChecked);
+        timeEditor.putString("timeText", timeText);
+        timeTextView.setText(timeText);
+        timeEditor.apply();
+    }
+
+    private void setLoadPreferences() {
+        SharedPreferences sharedTime = getSharedPreferences("loadPrefs", Context.MODE_PRIVATE);
+        loadChecked = sharedTime.getBoolean("loadChecked", false);
+
+        if (loadChecked) {
+            defaultLoadCheckBox.setChecked(true);
+        } else {
+            defaultLoadCheckBox.setChecked(false);
+        }
+    }
+
+    private void saveLoadPreferences() {
+        SharedPreferences sharedTime = getSharedPreferences("loadPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor loadEditor = sharedTime.edit();
+        loadEditor.putBoolean("loadChecked", loadChecked);
+        loadEditor.apply();
     }
 
     private void showTimePicker() {
@@ -186,31 +204,13 @@ public class Settings extends Activity {
         saveTimePreferences();
     }
 
-    private void loadButton() {
-        contactsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                loadContacts(getApplicationContext(), dbHandler);
-                Toast toast = Toast.makeText(getApplicationContext(), "Contacts are loaded!", Toast.LENGTH_SHORT);
-                toast.show();
-                setResult(0);
-                finish();
-            }
-        });
-    }
-
-    private void reloadButton() {
-        resetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dbHandler.startOver();
-                Toast toast = Toast.makeText(getApplicationContext(), "Table is now empty! Loading contacts!", Toast.LENGTH_SHORT);
-                toast.show();
-                loadContacts(getApplicationContext(), dbHandler);
-                setResult(0);
-                finish();
-            }
-        });
+    public void defaultLoad(View view) {
+        if (defaultLoadCheckBox.isChecked()) {
+            loadChecked = true;
+        } else {
+            loadChecked = false;
+        }
+        saveLoadPreferences();
     }
 
     @Override
@@ -221,6 +221,7 @@ public class Settings extends Activity {
         if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ENTER && timeChecked)) {
             timeText = timeTextView.getText().toString();
         }
+        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
         return super.onKeyDown(keyCode, event);
     }
 
@@ -291,6 +292,7 @@ public class Settings extends Activity {
         super.onBackPressed();
         saveBirthdayPreferences();
         saveTimePreferences();
+        saveLoadPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
@@ -300,6 +302,7 @@ public class Settings extends Activity {
         super.onPause();
         saveBirthdayPreferences();
         saveTimePreferences();
+        saveLoadPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
@@ -309,6 +312,7 @@ public class Settings extends Activity {
         super.onStop();
         saveBirthdayPreferences();
         saveTimePreferences();
+        saveLoadPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
@@ -318,6 +322,7 @@ public class Settings extends Activity {
         super.onDestroy();
         saveBirthdayPreferences();
         saveTimePreferences();
+        saveLoadPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }

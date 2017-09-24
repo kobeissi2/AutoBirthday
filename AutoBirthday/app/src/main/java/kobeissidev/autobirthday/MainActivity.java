@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridLayout;
@@ -15,16 +14,11 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.DateFormatSymbols;
 
+import static kobeissidev.autobirthday.Settings.getLoadChecked;
 import static kobeissidev.autobirthday.Settings.loadContacts;
 
 public class MainActivity extends Activity {
@@ -39,7 +33,10 @@ public class MainActivity extends Activity {
         boolean isFirst = MyPreferences.isFirst(MainActivity.this);
 
         if (permissions.getPermission()) {
-            loadContacts(getApplicationContext(), dbHandler);
+            if (getLoadChecked(this)) {
+                loadContacts(getApplicationContext(), dbHandler);
+                Toast.makeText(this, "New Contacts Loaded!", Toast.LENGTH_SHORT).show();
+            }
             run();
         }
         if (isFirst) {
@@ -65,11 +62,25 @@ public class MainActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.contact_load_menu:
+                menuLoadContacts("Loading Contacts!");
+                return true;
+            case R.id.contact_reload_menu:
+                dbHandler.startOver();
+                menuLoadContacts("Table Is Now Empty! Loading Contacts!");
+                return true;
             case R.id.action_settings:
                 startActivityForResult(new Intent(getApplicationContext(), Settings.class), 0);
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void menuLoadContacts(String toastText) {
+        loadContacts(getApplicationContext(), dbHandler);
+        Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
+        finish();
+        startActivity(getIntent());
     }
 
     private static class MyPreferences {
