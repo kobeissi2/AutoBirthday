@@ -52,18 +52,14 @@ public class Settings extends Activity {
         birthdayEditText = findViewById(R.id.birthdayEditText);
         timeTextView = findViewById(R.id.timeTextView);
 
-        if (birthdayEditText.length() == 0) {
-            birthdayEditText.setText("Happy Birthday!");
-        }
-
         loadButton();
         reloadButton();
         setBirthdayPreferences();
         setTimePreferences();
 
-        birthdayCheck();
+        birthdayCheck(findViewById(android.R.id.content));
         setCheckBox(birthdayChecked, birthdayCheckBox);
-        timeCheck();
+        timeCheck(findViewById(android.R.id.content));
         setCheckBox(timeChecked, timeCheckBox);
     }
 
@@ -97,6 +93,13 @@ public class Settings extends Activity {
         SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
         birthdayChecked = sharedBirthday.getBoolean("birthdayChecked", false);
         birthdayText = sharedBirthday.getString("birthdayText", "Happy Birthday!");
+
+        if (birthdayChecked) {
+            birthdayCheckBox.setChecked(true);
+        } else {
+            birthdayCheckBox.setChecked(false);
+        }
+
         setVisibility(birthdayChecked, birthdayEditText);
     }
 
@@ -104,6 +107,12 @@ public class Settings extends Activity {
         SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         timeChecked = sharedTime.getBoolean("timeChecked", false);
         timeText = sharedTime.getString("timeText", "Time to send text: 00:00.");
+
+        if (timeChecked) {
+            timeCheckBox.setChecked(true);
+        } else {
+            timeCheckBox.setChecked(false);
+        }
     }
 
     private void showTimePicker() {
@@ -164,22 +173,17 @@ public class Settings extends Activity {
         timePickerDialog.show();
     }
 
-    private void timeCheck() {
-        timeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (timeCheckBox.isChecked()) {
-                    timeChecked = true;
-                    if (timeTextView.getText().toString().equals(timeText)) {
-                        showTimePicker();
-                    }
-                } else {
-                    timeChecked = false;
-                }
-                setVisibility(timeChecked, timeTextView);
-                saveTimePreferences();
+    public void timeCheck(View view) {
+        if (timeCheckBox.isChecked()) {
+            timeChecked = true;
+            if (timeTextView.getText().toString().equals(timeText)) {
+                showTimePicker();
             }
-        });
+        } else {
+            timeChecked = false;
+        }
+        setVisibility(timeChecked, timeTextView);
+        saveTimePreferences();
     }
 
     private void loadButton() {
@@ -220,20 +224,15 @@ public class Settings extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private void birthdayCheck() {
-        birthdayCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (birthdayCheckBox.isChecked()) {
-                    birthdayChecked = true;
-                } else {
-                    birthdayChecked = false;
-                    birthdayText = "Happy Birthday!";
-                }
-                setVisibility(birthdayChecked, birthdayEditText);
-                saveBirthdayPreferences();
-            }
-        });
+    public void birthdayCheck(View view) {
+        if (birthdayCheckBox.isChecked()) {
+            birthdayChecked = true;
+        } else {
+            birthdayChecked = false;
+            birthdayText = "Happy Birthday!";
+        }
+        setVisibility(birthdayChecked, birthdayEditText);
+        saveBirthdayPreferences();
     }
 
     private void setVisibility(boolean checked, EditText editText) {
