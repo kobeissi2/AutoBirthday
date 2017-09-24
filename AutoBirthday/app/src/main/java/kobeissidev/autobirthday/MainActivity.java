@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
         if (isFirst) {
             run();
         }
-        SMS.SMS(this);
+        SMS.SMSService(this);
     }
 
     private void run() {

@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.format.DateFormat;
+import android.util.Log;
 
 import java.util.Date;
+import java.util.List;
 
 public class SMS extends Activity {
     private static String timeToSend;
@@ -13,6 +15,7 @@ public class SMS extends Activity {
     private static String messageToSend;
     private static boolean messageBool;
     private static boolean isUser24Hour;
+    private static DBHandler dbHandler;
 
     private static void setBirthdayPreferences(Context context) {
         SharedPreferences sharedBirthday = context.getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
@@ -26,13 +29,16 @@ public class SMS extends Activity {
         timeBool = sharedTime.getBoolean("timeChecked", false);
     }
 
-    public static void SMS(Context context) {
+    public static void SMSService(Context context) {
+        dbHandler = new DBHandler(context);
+
         setBirthdayPreferences(context.getApplicationContext());
         setTimePreferences(context.getApplicationContext());
         setEmptyTime(context);
         setEmptyMessage();
-
-        isTimeToSendMessage(context);
+        if (isTimeToSendMessage(context) && isDayToSendMessage(context)) {
+            sendSMS();
+        }
     }
 
     private static void setEmptyTime(Context context) {
@@ -53,9 +59,46 @@ public class SMS extends Activity {
     }
 
     private static boolean isTimeToSendMessage(Context context) {
-        isUser24Hour = DateFormat.is24HourFormat(context.getApplicationContext());
         String time = timeToSend.substring(19, timeToSend.length() - 1);
-        String newTimeString = android.text.format.DateFormat.getTimeFormat(context).format(new Date());
-        return time.equals(newTimeString);
+        String currentTime = android.text.format.DateFormat.getTimeFormat(context).format(new Date());
+        return time.equals(currentTime);
+    }
+
+    private static boolean isDayToSendMessage(Context context) {
+        List<Contact> contacts = dbHandler.getAllContacts();
+        String currentDate = android.text.format.DateFormat.getDateFormat(context).format(new Date());
+        String[] currentDateSplit = currentDate.split("/");
+        boolean isDayToSend = false;
+        for (Contact contact : contacts) {
+
+            String contactMonth = contact.get_birthday().substring(0, 2);
+            String[] contactDaySplit = contact.get_birthday().split("-");
+            String contactDay;
+            if (contactDaySplit.length != 2) {
+                contactDay = contactDaySplit[1];
+            } else {
+                contactDay = contactDaySplit[0];
+            }
+            String currentMonth = currentDateSplit[0];
+
+            if (currentMonth.length() == 1) {
+                currentMonth = "0" + currentMonth;
+            }
+
+            String currentDay = currentDateSplit[1];
+
+            if (currentDay.length() == 1) {
+                currentDay = "0" + currentDay;
+            }
+
+            if (contactMonth.equals(currentMonth) && contactDay.equals(currentDay)) {
+                isDayToSend = true;
+            }
+        }
+        return isDayToSend;
+    }
+
+    private static void sendSMS() {
+
     }
 }
