@@ -19,6 +19,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String COLUMN_CONTACT_NAME = "_contactName";
     private static final String COLUMN_BIRTHDAY = "_birthday";
     private static final String COLUMN_APPTOUSE = "_appToUse";
+    private static final String COLUMN_PHONENUMBER = "_phoneNumber";
 
     public DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -28,7 +29,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         String query = "CREATE TABLE " + TABLE_CONTACTS + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_CONTACT_NAME + " TEXT," + COLUMN_BIRTHDAY + " TEXT,"
-                + COLUMN_APPTOUSE + " TEXT" + ");";
+                + COLUMN_APPTOUSE + " TEXT,"+ COLUMN_PHONENUMBER + " TEXT" + ");";
         database.execSQL(query);
     }
 
@@ -41,13 +42,13 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public Contact getContact(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_CONTACTS, new String[]{COLUMN_ID, COLUMN_CONTACT_NAME, COLUMN_BIRTHDAY, COLUMN_APPTOUSE},
+        Cursor cursor = db.query(TABLE_CONTACTS, new String[]{COLUMN_ID, COLUMN_CONTACT_NAME, COLUMN_BIRTHDAY, COLUMN_APPTOUSE, COLUMN_PHONENUMBER},
                 COLUMN_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null){
             cursor.moveToFirst();
         }
         Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2), cursor.getString(3));
+                cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
         cursor.close();
         return contact;
     }
@@ -64,7 +65,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 contact.set_contactName(cursor.getString(1));
                 contact.set_birthday(cursor.getString(2));
                 contact.set_appToUse(cursor.getString(3));
-
+                contact.set_phoneNumber(cursor.getString(4));
                 contactList.add(contact);
             } while (cursor.moveToNext());
         }
@@ -124,6 +125,7 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_CONTACT_NAME,contact.get_contactName());
         contentValues.put(COLUMN_BIRTHDAY,contact.get_birthday());
+        contentValues.put(COLUMN_PHONENUMBER,contact.get_phoneNumber());
         int id = getUniqueID(contact);
         if(id==-1){
             contentValues.put(COLUMN_APPTOUSE,contact.get_appToUse());

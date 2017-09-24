@@ -11,8 +11,9 @@ import java.util.List;
 
 public class SMS extends Activity {
     private static String timeToSend;
-    private static boolean timeBool;
     private static String messageToSend;
+    private static String contactName;
+    private static boolean timeBool;
     private static boolean messageBool;
     private static boolean isUser24Hour;
     private static DBHandler dbHandler;
@@ -26,7 +27,8 @@ public class SMS extends Activity {
         setEmptyMessage();
 
         if (isDayToSendMessage(context) && isTimeToSendMessage(context)) {
-            sendSMS();
+            final String contactNumber = getContactNumber(contactName);
+            sendSMS(contactNumber, messageToSend);
         }
     }
 
@@ -70,25 +72,39 @@ public class SMS extends Activity {
         String currentDate = android.text.format.DateFormat.getDateFormat(context).format(new Date());
         String[] currentDateSplit = currentDate.split("/");
         boolean isDayToSend = false;
+
         for (Contact contact : contacts) {
             String contactMonth = contact.get_birthday().substring(0, 2);
             String contactDay = contact.get_birthday().substring(3, contact.get_birthday().length());
             String currentMonth = currentDateSplit[0];
+            String currentDay = currentDateSplit[1];
+
             if (currentMonth.length() == 1) {
                 currentMonth = "0" + currentMonth;
             }
-            String currentDay = currentDateSplit[1];
             if (currentDay.length() == 1) {
                 currentDay = "0" + currentDay;
             }
             if (contactMonth.equals(currentMonth) && contactDay.equals(currentDay)) {
+                contactName = contact.get_contactName();
                 isDayToSend = true;
             }
         }
         return isDayToSend;
     }
 
-    private static void sendSMS() {
+    private static String getContactNumber(String contactName) {
+        List<Contact> contacts = dbHandler.getAllContacts();
+        String contactNumber = "";
+        for (Contact contact : contacts) {
+            if (contact.get_contactName().equals(contactName)) {
+                contactNumber = contact.get_phoneNumber();
+            }
+        }
+        return contactNumber;
+    }
 
+    private static void sendSMS(String phoneNumber, String birthdayMessage) {
+        birthdayMessage = messageToSend;
     }
 }

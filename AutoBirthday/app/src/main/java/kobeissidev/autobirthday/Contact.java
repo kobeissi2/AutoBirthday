@@ -7,12 +7,13 @@ public class Contact {
     private String _contactName;
     private String _birthday;
     private String _appToUse;
+    private String _phoneNumber;
     private static final int BIRTHDAY_SIZE = 5;
 
     public Contact() {
     }
 
-    public Contact(int id, String contactName, String birthday, String appToUse) {
+    public Contact(int id, String contactName, String birthday, String appToUse, String phoneNumber) {
         _id = id;
         _contactName = contactName;
 
@@ -23,12 +24,14 @@ public class Contact {
         }
         _birthday = birthday;
         _appToUse = appToUse;
+        _phoneNumber = phoneNumber;
     }
 
-    public Contact(String contactName, String birthday, String appToUse) {
+    public Contact(String contactName, String birthday, String appToUse, String phoneNumber) {
         _contactName = contactName;
         _birthday = birthday;
         _appToUse = appToUse;
+        _phoneNumber = phoneNumber;
     }
 
     public int get_id() {
@@ -49,7 +52,7 @@ public class Contact {
 
     public String get_birthday() {
         if (_birthday.length() > BIRTHDAY_SIZE) {
-            set_birthday(_birthday.substring(3,_birthday.length()));
+            set_birthday(_birthday.substring(3, _birthday.length()));
         }
         return _birthday;
     }
@@ -64,5 +67,13 @@ public class Contact {
 
     public void set_appToUse(String _appToUse) {
         this._appToUse = _appToUse;
+    }
+
+    public String get_phoneNumber() {
+        return _phoneNumber;
+    }
+
+    public void set_phoneNumber(String phoneNumber) {
+        this._phoneNumber = phoneNumber;
     }
 }

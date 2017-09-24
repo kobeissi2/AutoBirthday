@@ -58,7 +58,7 @@ public class Settings extends Activity {
         setCheckBox(loadChecked, defaultLoadCheckBox);
     }
 
-    public static boolean getLoadChecked(Context context){
+    public static boolean getLoadChecked(Context context) {
         SharedPreferences sharedTime = context.getSharedPreferences("loadPrefs", Context.MODE_PRIVATE);
         return sharedTime.getBoolean("loadChecked", false);
     }
@@ -260,20 +260,23 @@ public class Settings extends Activity {
             while (cursor.moveToNext()) {
                 String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data._ID));
                 String displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
+                String phoneNumber = "";
                 String columns[] = {
                         ContactsContract.CommonDataKinds.Event.START_DATE,
                         ContactsContract.CommonDataKinds.Event.TYPE,
                         ContactsContract.CommonDataKinds.Event.MIMETYPE,
                 };
                 String where = ContactsContract.CommonDataKinds.Event.TYPE + "=" + ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY +
-                        " and " + ContactsContract.CommonDataKinds.Event.MIMETYPE + " = '" + ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE + "' and " + ContactsContract.Data.CONTACT_ID + " = " + contactId;
+                        " and " + ContactsContract.CommonDataKinds.Event.MIMETYPE + " = '" + ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE
+                        + "' and " + ContactsContract.Data.CONTACT_ID + " = " + contactId;
                 String sortOrder = ContactsContract.Contacts.DISPLAY_NAME;
                 Cursor birthdayCur = contentResolver.query(ContactsContract.Data.CONTENT_URI, columns, where, null, sortOrder);
                 if (birthdayCur != null && birthdayCur.getCount() > 0) {
                     while (birthdayCur.moveToNext()) {
                         String birthday = birthdayCur.getString(birthdayCur.getColumnIndex(ContactsContract.CommonDataKinds.Event.START_DATE));
                         birthday = birthday.substring(2, birthday.length());
-                        Contact contact = new Contact(displayName, birthday, "SMS");
+                        phoneNumber = getPhoneNumber(context, displayName);
+                        Contact contact = new Contact(displayName, birthday, "SMS", phoneNumber);
                         dbHandler.insertOrUpdate(contact);
                     }
                 }
@@ -285,6 +288,29 @@ public class Settings extends Activity {
         if (cursor != null) {
             cursor.close();
         }
+    }
+
+    private static String getPhoneNumber(Context context, String displayName) {
+        String number = "";
+        ContentResolver contentResolver = context.getContentResolver();
+        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null,
+                "DISPLAY_NAME = '" + displayName + "'", null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                String contactId =
+                        cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                Cursor phones = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+                if (phones != null) {
+                    while (phones.moveToNext()) {
+                        number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    }
+                    phones.close();
+                }
+            }
+            cursor.close();
+        }
+        return number;
     }
 
     @Override
