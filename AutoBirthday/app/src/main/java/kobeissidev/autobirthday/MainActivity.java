@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
         if (isFirst) {
             run();
         }
+        SMS.test(this);
     }
 
     private void run() {

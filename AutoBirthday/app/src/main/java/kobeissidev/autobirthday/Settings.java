@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -19,7 +20,6 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
 public class Settings extends Activity {
@@ -51,6 +51,10 @@ public class Settings extends Activity {
         birthdayCheckBox = findViewById(R.id.birthdayCheckBox);
         birthdayEditText = findViewById(R.id.birthdayEditText);
         timeTextView = findViewById(R.id.timeTextView);
+
+        if (birthdayEditText.length() == 0) {
+            birthdayEditText.setText("Happy Birthday!");
+        }
 
         loadButton();
         reloadButton();
@@ -103,16 +107,60 @@ public class Settings extends Activity {
     }
 
     private void showTimePicker() {
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        int minute = Calendar.getInstance().get(Calendar.MINUTE);
+        final boolean isUser24Hour = DateFormat.is24HourFormat(this);
+        final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        final int minute = Calendar.getInstance().get(Calendar.MINUTE);
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
+                    String amPM;
+
                     @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay,
-                                          int minute) {
-                        timeTextView.setText("Time to send text: " + hourOfDay + ":" + minute + ".");
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        String hourString;
+                        String minuteString;
+
+                        if (isUser24Hour) {
+                            hourString = String.valueOf(hourOfDay);
+                            minuteString = String.valueOf(minute);
+                            if (hourOfDay < 10 && hourOfDay != 0) {
+                                hourString = "0" + String.valueOf(hourOfDay);
+                            } else if (hourOfDay == 0) {
+                                hourString = "00";
+                            }
+                            if (minute < 10) {
+                                minuteString = "0" + String.valueOf(minute);
+                            }
+                        } else {
+                            if (hourOfDay >= 12) {
+                                amPM = " PM";
+                                if (hourOfDay != 12) {
+                                    hourOfDay -= 12;
+                                }
+                                hourString = String.valueOf(hourOfDay);
+                            } else {
+                                amPM = " AM";
+
+                                if (hourOfDay == 0) {
+                                    hourOfDay = 12;
+                                }
+
+                                hourString = String.valueOf(hourOfDay);
+                            }
+                            if (minute < 10) {
+                                minuteString = "0" + minute;
+                            } else {
+                                minuteString = String.valueOf(minute);
+                            }
+                        }
+
+                        if (isUser24Hour) {
+                            timeTextView.setText("Time to send text: " + hourString + ":" + minuteString + ".");
+                        } else {
+                            timeTextView.setText("Time to send text: " + hourString + ":" + minuteString + amPM + ".");
+                        }
+
                     }
-                }, hour, minute, false);
+                }, hour, minute, isUser24Hour);
         timePickerDialog.show();
     }
 
@@ -122,12 +170,9 @@ public class Settings extends Activity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (timeCheckBox.isChecked()) {
                     timeChecked = true;
-                    if (timeTextView.getText().toString().equals( timeText)) {
+                    if (timeTextView.getText().toString().equals(timeText)) {
                         showTimePicker();
                     }
-                    Log.e("Test", timeTextView.getText().toString());
-                    Log.e("Compared", "Time to send text: " + timeText + ".");
-
                 } else {
                     timeChecked = false;
                 }
@@ -176,7 +221,6 @@ public class Settings extends Activity {
     }
 
     private void birthdayCheck() {
-
         birthdayCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
