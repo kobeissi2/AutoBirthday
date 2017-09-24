@@ -26,21 +26,24 @@ public class Permissions {
     private boolean checkPermissions() {
         int permissionCheckContacts = ContextCompat.checkSelfPermission(appContext, Manifest.permission.READ_CONTACTS);
         int permissionCheckSMS = ContextCompat.checkSelfPermission(appContext, Manifest.permission.SEND_SMS);
-        if (permissionCheckContacts != PackageManager.PERMISSION_GRANTED || permissionCheckSMS != PackageManager.PERMISSION_GRANTED) {
+        int permissionCheckPhoneState = ContextCompat.checkSelfPermission(appContext, Manifest.permission.READ_PHONE_STATE);
+        if (permissionCheckContacts != PackageManager.PERMISSION_GRANTED || permissionCheckSMS != PackageManager.PERMISSION_GRANTED
+                || permissionCheckPhoneState != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.READ_CONTACTS) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.SEND_SMS)) {
-                ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS}, 1);
+                    ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.SEND_SMS) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.READ_PHONE_STATE)) {
+                ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE}, 1);
             } else {
-                ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS,Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST);
+                ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE}, MY_PERMISSIONS_REQUEST);
             }
         }
-        if (permissionCheckContacts == PackageManager.PERMISSION_GRANTED && permissionCheckSMS == PackageManager.PERMISSION_GRANTED) {
+        if (permissionCheckContacts == PackageManager.PERMISSION_GRANTED && permissionCheckSMS == PackageManager.PERMISSION_GRANTED && permissionCheckPhoneState == PackageManager.PERMISSION_GRANTED) {
             return true;
         }
         return false;
     }
 
-    public boolean getPermission(){
+    public boolean getPermission() {
         return checkPermissions();
     }
 }

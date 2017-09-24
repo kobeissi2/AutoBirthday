@@ -1,10 +1,14 @@
 package kobeissidev.autobirthday;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.v4.app.NotificationCompat;
+import android.telephony.SmsManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Date;
 import java.util.List;
@@ -28,7 +32,7 @@ public class SMS extends Activity {
 
         if (isDayToSendMessage(context) && isTimeToSendMessage(context)) {
             final String contactNumber = getContactNumber(contactName);
-            sendSMS(contactNumber, messageToSend);
+            sendSMS(context, contactNumber);
         }
     }
 
@@ -104,7 +108,8 @@ public class SMS extends Activity {
         return contactNumber;
     }
 
-    private static void sendSMS(String phoneNumber, String birthdayMessage) {
-        birthdayMessage = messageToSend;
+    private static void sendSMS(Context context, String phoneNumber) {
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phoneNumber, null, messageToSend, null, null);
     }
 }
