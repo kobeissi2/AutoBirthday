@@ -205,11 +205,7 @@ public class Settings extends Activity {
     }
 
     public void defaultLoad(View view) {
-        if (defaultLoadCheckBox.isChecked()) {
-            loadChecked = true;
-        } else {
-            loadChecked = false;
-        }
+        loadChecked = defaultLoadCheckBox.isChecked();
         saveLoadPreferences();
     }
 
