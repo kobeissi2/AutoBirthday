@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -43,7 +44,14 @@ public class MainActivity extends Activity {
         if (isFirst) {
             run();
         }
-        Message.MessageService(this);
+
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                Message.MessageService(MainActivity.this);
+            }
+        });
+
     }
 
     private void run() {
