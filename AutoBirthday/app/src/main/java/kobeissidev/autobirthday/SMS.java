@@ -1,15 +1,19 @@
 package kobeissidev.autobirthday;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.text.format.DateFormat;
-import android.util.Log;
-import android.widget.Toast;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +23,6 @@ public class SMS extends Activity {
     private static String contactName;
     private static boolean timeBool;
     private static boolean messageBool;
-    private static boolean isUser24Hour;
     private static DBHandler dbHandler;
 
     public static void SMSService(Context context) {
@@ -49,7 +52,7 @@ public class SMS extends Activity {
     }
 
     private static void setEmptyTime(Context context) {
-        isUser24Hour = DateFormat.is24HourFormat(context.getApplicationContext());
+        final boolean isUser24Hour = DateFormat.is24HourFormat(context.getApplicationContext());
         if (!timeBool) {
             if (isUser24Hour) {
                 timeToSend = "Time to send text: 00:00.";
@@ -101,7 +104,7 @@ public class SMS extends Activity {
         List<Contact> contacts = dbHandler.getAllContacts();
         String contactNumber = "";
         for (Contact contact : contacts) {
-            if (contact.get_contactName().equals(contactName)) {
+            if (contact.get_contactName().equals(contactName) && contact.get_appToUse().equals("SMS")) {
                 contactNumber = contact.get_phoneNumber();
             }
         }
@@ -112,4 +115,6 @@ public class SMS extends Activity {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNumber, null, messageToSend, null, null);
     }
+
+
 }
