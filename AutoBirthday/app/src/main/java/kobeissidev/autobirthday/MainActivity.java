@@ -202,11 +202,13 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(MainActivity.this)
                 .setIcon(android.R.drawable.sym_contact_card)
                 .setTitle("No Contacts!")
-                .setMessage("You do not have any contacts. \nWant to go to settings to load contacts?")
+                .setMessage("You do not have any contacts. \nWant to go to load contacts?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivityForResult(new Intent(getApplicationContext(), Settings.class), 0);
+                        loadContacts(getApplicationContext(), dbHandler);
+                        finish();
+                        startActivity(getIntent());
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
