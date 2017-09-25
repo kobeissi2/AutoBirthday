@@ -2,7 +2,6 @@
     <string name="app_name">AutoBirthday</string>
 
     <string name="SMS">SMS</string>
-    <string name="WhatsApp">WhatsApp</string>
     <string name="Off">Off</string>
 
     <string name="title_first_section">Contact:</string>

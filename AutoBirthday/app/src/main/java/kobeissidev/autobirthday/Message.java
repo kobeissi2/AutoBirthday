@@ -5,37 +5,47 @@ import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.SystemClock;
+import android.support.annotation.Nullable;
+import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.text.format.DateFormat;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class SMS extends Activity {
+public class Message extends Activity {
     private static String timeToSend;
     private static String messageToSend;
     private static String contactName;
+    private static String contactNumber;
     private static boolean timeBool;
     private static boolean messageBool;
     private static DBHandler dbHandler;
 
-    public static void SMSService(Context context) {
+    public static void MessageService(Context context) {
         dbHandler = new DBHandler(context);
 
         setBirthdayPreferences(context.getApplicationContext());
         setTimePreferences(context.getApplicationContext());
         setEmptyTime(context);
         setEmptyMessage();
-
         if (isDayToSendMessage(context) && isTimeToSendMessage(context)) {
-            final String contactNumber = getContactNumber(contactName);
-            sendSMS(context, contactNumber);
+            contactNumber = getContactNumber(contactName);
+            sendSMS();
         }
     }
 
@@ -111,10 +121,8 @@ public class SMS extends Activity {
         return contactNumber;
     }
 
-    private static void sendSMS(Context context, String phoneNumber) {
+    private static void sendSMS() {
         SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(phoneNumber, null, messageToSend, null, null);
+        smsManager.sendTextMessage(contactNumber, null, messageToSend, null, null);
     }
-
-
 }
