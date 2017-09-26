@@ -19,6 +19,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 import java.text.DateFormatSymbols;
 
 import static kobeissidev.autobirthday.Settings.getLoadChecked;
+import static kobeissidev.autobirthday.Settings.getNotificationChecked;
 import static kobeissidev.autobirthday.Settings.loadContacts;
 
 public class MainActivity extends Activity {
@@ -40,7 +42,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final Permissions permissions = new Permissions(this, MainActivity.this);
-
+        final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         dbHandler = new DBHandler(this);
         boolean isFirst = MyPreferences.isFirst(MainActivity.this);
 
@@ -57,10 +59,14 @@ public class MainActivity extends Activity {
 
         Message.MessageService(this);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            runNotificationManager();
+        if(getNotificationChecked(this)){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                runNotificationManager();
+            }
+            runNotification(notificationManager);
+        }else{
+            notificationManager.cancelAll();
         }
-        runNotification();
     }
 
     @TargetApi(26)
@@ -78,19 +84,18 @@ public class MainActivity extends Activity {
         mNotificationManager.createNotificationChannel(mChannel);
     }
 
-    private void runNotification() {
+    private void runNotification(NotificationManager notificationManager) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, id);
         builder.setSmallIcon(R.drawable.ic_stat_cake);
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
-        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round));
         builder.setContentTitle("AutoBirthday is Running!");
         builder.setContentText("Tap to open AutoBirthday.");
-        builder.setAutoCancel(true);
         builder.setOngoing(true);
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(1, builder.build());
+
     }
 
     private void run() {

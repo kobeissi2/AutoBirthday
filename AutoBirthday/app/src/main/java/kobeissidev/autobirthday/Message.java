@@ -45,7 +45,7 @@ public class Message extends Activity {
         setEmptyMessage();
         if (isDayToSendMessage(context) && isTimeToSendMessage(context)) {
             contactNumber = getContactNumber(contactName);
-            sendSMS();
+            sendSMS(context);
         }
     }
 
@@ -121,8 +121,9 @@ public class Message extends Activity {
         return contactNumber;
     }
 
-    private static void sendSMS() {
+    private static void sendSMS(Context context) {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(contactNumber, null, messageToSend, null, null);
+        Toast.makeText(context, "Sent Birthday Message To" + contactNumber + "!", Toast.LENGTH_SHORT);
     }
 }
