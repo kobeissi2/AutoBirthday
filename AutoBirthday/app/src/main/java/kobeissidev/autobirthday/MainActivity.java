@@ -106,11 +106,18 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void runInBackground(){
+
+
+
+    private void runInBackground() {
         Intent intent = new Intent(MainActivity.this, Message.class);
         PendingIntent smsPendingIntent = PendingIntent.getService(MainActivity.this, 0, intent, 0);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000, smsPendingIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), smsPendingIntent);
+        } else {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, smsPendingIntent);
+        }
     }
 
     @Override
