@@ -105,10 +105,7 @@ public class MainActivity extends Activity {
             displayContacts();
         }
     }
-
-
-
-
+    
     private void runInBackground() {
         Intent intent = new Intent(MainActivity.this, Message.class);
         PendingIntent smsPendingIntent = PendingIntent.getService(MainActivity.this, 0, intent, 0);
