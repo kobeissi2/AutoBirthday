@@ -27,42 +27,29 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class Message extends Activity {
-    private static String timeToSend;
-    private static String messageToSend;
-    private static String contactName;
-    private static String contactNumber;
-    private static boolean timeBool;
-    private static boolean messageBool;
-    private static DBHandler dbHandler;
+public class Message extends Service {
+    private String timeToSend;
+    private String messageToSend;
+    private String contactName;
+    private String contactNumber;
+    private boolean timeBool;
+    private boolean messageBool;
+    private DBHandler dbHandler;
 
-    public static void MessageService(Context context) {
-        dbHandler = new DBHandler(context);
-
-        setBirthdayPreferences(context.getApplicationContext());
-        setTimePreferences(context.getApplicationContext());
-        setEmptyTime(context);
-        setEmptyMessage();
-        if (isDayToSendMessage(context) && isTimeToSendMessage(context)) {
-            contactNumber = getContactNumber(contactName);
-            sendSMS(context);
-        }
-    }
-
-    private static void setBirthdayPreferences(Context context) {
-        SharedPreferences sharedBirthday = context.getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
+    private void setBirthdayPreferences() {
+        SharedPreferences sharedBirthday = getSharedPreferences("birthdayPrefs", Context.MODE_PRIVATE);
         messageToSend = sharedBirthday.getString("birthdayText", "Happy Birthday!");
         messageBool = sharedBirthday.getBoolean("birthdayChecked", false);
     }
 
-    private static void setTimePreferences(Context context) {
-        SharedPreferences sharedTime = context.getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
+    private void setTimePreferences() {
+        SharedPreferences sharedTime = getSharedPreferences("timePrefs", Context.MODE_PRIVATE);
         timeToSend = sharedTime.getString("timeText", "Time to send text: 00:00.");
         timeBool = sharedTime.getBoolean("timeChecked", false);
     }
 
-    private static void setEmptyTime(Context context) {
-        final boolean isUser24Hour = DateFormat.is24HourFormat(context.getApplicationContext());
+    private void setEmptyTime() {
+        final boolean isUser24Hour = DateFormat.is24HourFormat(getApplicationContext());
         if (!timeBool) {
             if (isUser24Hour) {
                 timeToSend = "Time to send text: 00:00.";
@@ -72,21 +59,21 @@ public class Message extends Activity {
         }
     }
 
-    private static void setEmptyMessage() {
+    private void setEmptyMessage() {
         if (!messageBool) {
             messageToSend = "Happy Birthday!";
         }
     }
 
-    private static boolean isTimeToSendMessage(Context context) {
+    private boolean isTimeToSendMessage() {
         String time = timeToSend.substring(19, timeToSend.length() - 1);
-        String currentTime = android.text.format.DateFormat.getTimeFormat(context).format(new Date());
+        String currentTime = android.text.format.DateFormat.getTimeFormat(this).format(new Date());
         return time.equals(currentTime);
     }
 
-    private static boolean isDayToSendMessage(Context context) {
+    private boolean isDayToSendMessage() {
         List<Contact> contacts = dbHandler.getAllContacts();
-        String currentDate = android.text.format.DateFormat.getDateFormat(context).format(new Date());
+        String currentDate = android.text.format.DateFormat.getDateFormat(this).format(new Date());
         String[] currentDateSplit = currentDate.split("/");
         boolean isDayToSend = false;
 
@@ -110,7 +97,7 @@ public class Message extends Activity {
         return isDayToSend;
     }
 
-    private static String getContactNumber(String contactName) {
+    private String getContactNumber(String contactName) {
         List<Contact> contacts = dbHandler.getAllContacts();
         String contactNumber = "";
         for (Contact contact : contacts) {
@@ -121,9 +108,40 @@ public class Message extends Activity {
         return contactNumber;
     }
 
-    private static void sendSMS(Context context) {
+    private void sendSMS() {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(contactNumber, null, messageToSend, null, null);
-        Toast.makeText(context, "Sent Birthday Message To" + contactNumber + "!", Toast.LENGTH_SHORT);
+        Toast.makeText(this, "Sent Birthday Message To " + contactName + "!", Toast.LENGTH_SHORT).show();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        dbHandler = new DBHandler(this);
+        setBirthdayPreferences();
+        setTimePreferences();
+        setEmptyTime();
+        setEmptyMessage();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        if (isDayToSendMessage() && isTimeToSendMessage()) {
+            contactNumber = getContactNumber(contactName);
+            sendSMS();
+        }
+        return START_STICKY;
     }
 }

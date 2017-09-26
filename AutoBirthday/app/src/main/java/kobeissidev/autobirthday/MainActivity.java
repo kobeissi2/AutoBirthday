@@ -2,6 +2,7 @@ package kobeissidev.autobirthday;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -57,16 +58,15 @@ public class MainActivity extends Activity {
             run();
         }
 
-        Message.MessageService(this);
-
-        if(getNotificationChecked(this)){
+        if (getNotificationChecked(this)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 runNotificationManager();
             }
             runNotification(notificationManager);
-        }else{
+        } else {
             notificationManager.cancelAll();
         }
+        runInBackground();
     }
 
     @TargetApi(26)
@@ -104,6 +104,13 @@ public class MainActivity extends Activity {
         } else {
             displayContacts();
         }
+    }
+
+    private void runInBackground(){
+        Intent intent = new Intent(MainActivity.this, Message.class);
+        PendingIntent smsPendingIntent = PendingIntent.getService(MainActivity.this, 0, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000, smsPendingIntent);
     }
 
     @Override

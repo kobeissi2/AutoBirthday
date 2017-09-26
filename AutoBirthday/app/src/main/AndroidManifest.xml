@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Settings" />
+        <service android:enabled="true" android:name=".Message" />
     </application>
 
 </manifest>
