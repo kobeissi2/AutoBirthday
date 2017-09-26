@@ -1,12 +1,21 @@
 package kobeissidev.autobirthday;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,12 +33,14 @@ import static kobeissidev.autobirthday.Settings.loadContacts;
 
 public class MainActivity extends Activity {
     DBHandler dbHandler;
+    String id = "0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final Permissions permissions = new Permissions(this, MainActivity.this);
+
         dbHandler = new DBHandler(this);
         boolean isFirst = MyPreferences.isFirst(MainActivity.this);
 
@@ -43,7 +54,43 @@ public class MainActivity extends Activity {
         if (isFirst) {
             run();
         }
+
         Message.MessageService(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            runNotificationManager();
+        }
+        runNotification();
+    }
+
+    @TargetApi(26)
+    private void runNotificationManager() {
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        id = "auto_birthday_01";
+        CharSequence name = getString(R.string.channel_name);
+        String description = getString(R.string.channel_description);
+        int importance = NotificationManager.IMPORTANCE_LOW;
+        NotificationChannel mChannel = new NotificationChannel(id, name, importance);
+        mChannel.setDescription(description);
+        mChannel.enableLights(true);
+        mChannel.setLightColor(Color.WHITE);
+        mChannel.enableVibration(false);
+        mNotificationManager.createNotificationChannel(mChannel);
+    }
+
+    private void runNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, id);
+        builder.setSmallIcon(R.drawable.ic_stat_cake);
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+        builder.setContentTitle("AutoBirthday is Running!");
+        builder.setContentText("Tap to open AutoBirthday.");
+        builder.setAutoCancel(true);
+        builder.setOngoing(true);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(1, builder.build());
     }
 
     private void run() {
