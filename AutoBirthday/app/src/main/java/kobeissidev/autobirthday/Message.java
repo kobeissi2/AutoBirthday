@@ -26,6 +26,7 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
 public class Message extends Service {
     private String timeToSend;
     private String messageToSend;
-    private String contactName;
+    private ArrayList<String> contactName;
     private String contactNumber;
     private boolean timeBool;
     private boolean messageBool;
@@ -93,9 +94,11 @@ public class Message extends Service {
                 currentDay = "0" + currentDay;
             }
             if (contactMonth.equals(currentMonth) && contactDay.equals(currentDay)) {
-                contactName = contact.get_contactName();
-                isDayToSend = true;
+                contactName.add(contact.get_contactName());
             }
+        }
+        if (!contactName.isEmpty()) {
+            isDayToSend = true;
         }
         return isDayToSend;
     }
@@ -111,7 +114,7 @@ public class Message extends Service {
         return contactNumber;
     }
 
-    private void sendSMS() {
+    private void sendSMS(String contactName) {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(contactNumber, null, messageToSend, null, null);
         Toast.makeText(this, "Sent Birthday Message To " + contactName + "!", Toast.LENGTH_SHORT).show();
@@ -120,6 +123,7 @@ public class Message extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        contactName = new ArrayList<>();
         dbHandler = new DBHandler(this);
         setBirthdayPreferences();
         setTimePreferences();
@@ -133,8 +137,14 @@ public class Message extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (isDayToSendMessage() && isTimeToSendMessage()) {
-            contactNumber = getContactNumber(contactName);
-            sendSMS();
+            if (!contactName.isEmpty()) {
+                for (String contact : contactName) {
+                    contactNumber = getContactNumber(contact);
+                    sendSMS(contact);
+                }
+            } else {
+                Log.w("Contact", "Contact Empty!");
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -145,10 +155,9 @@ public class Message extends Service {
                     .setSmallIcon(R.drawable.ic_stat_cake)
                     .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
                     .setContentIntent(pendingIntent);
-                    
+
             Notification notification = builder.build();
             startForeground(1, notification);
-
 
         } else {
 

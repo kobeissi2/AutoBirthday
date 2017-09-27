@@ -64,11 +64,9 @@ public class MainActivity extends Activity {
         id = "auto_birthday_01";
         CharSequence name = getString(R.string.channel_name);
         String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_NONE;
+        int importance = NotificationManager.IMPORTANCE_MIN;
         NotificationChannel mChannel = new NotificationChannel(id, name, importance);
         mChannel.setDescription(description);
-        mChannel.enableLights(true);
-        mChannel.setLightColor(Color.WHITE);
         mChannel.enableVibration(false);
         mNotificationManager.createNotificationChannel(mChannel);
 
