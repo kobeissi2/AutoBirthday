@@ -31,6 +31,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static kobeissidev.autobirthday.MainActivity.runNotificationManager;
+import static kobeissidev.autobirthday.MyJobService.getIntent;
+
 public class Message extends Service {
     private String timeToSend;
     private String messageToSend;
@@ -134,23 +137,40 @@ public class Message extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Boolean messageSent = false;
+        String message = "Tap to open AutoBirthday!";
 
         if (isDayToSendMessage() && isTimeToSendMessage()) {
             if (!contactName.isEmpty()) {
                 for (String contact : contactName) {
                     contactNumber = getContactNumber(contact);
                     sendSMS(contact);
+                    messageSent = true;
                 }
             } else {
                 Log.w("Contact", "Contact Empty!");
             }
         }
+        if (messageSent) {
+            message = "Birthday Message sent!";
+        }
+
+        NotificationManager notificationManager = runNotificationManager(getApplicationContext());
+        notificationManager.cancelAll();
+        notificationManager.notify(1, notificationSet(getIntent(this), message));
+
+        return START_STICKY;
+    }
+
+    private Notification notificationSet(Intent intent, String text) {
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(getApplicationContext(),MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             Notification.Builder builder = new Notification.Builder(this, "auto_birthday_01")
                     .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Tap to open AutoBirthday.")
+                    .setContentText(text)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
                     .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
@@ -158,12 +178,12 @@ public class Message extends Service {
 
             Notification notification = builder.build();
             startForeground(1, notification);
-
+            return notification;
         } else {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Tap to open AutoBirthday.")
+                    .setContentText(text)
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
@@ -172,8 +192,8 @@ public class Message extends Service {
 
             Notification notification = builder.build();
             startForeground(1, notification);
+            return notification;
         }
-        return START_STICKY;
     }
 
     @Nullable

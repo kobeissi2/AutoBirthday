@@ -6,7 +6,7 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 
-@TargetApi(23)
+//@TargetApi(23)
 public class Utility {
     public static void scheduleJob(Context context) {
         ComponentName serviceComponent = new ComponentName(context, MyJobService.class);

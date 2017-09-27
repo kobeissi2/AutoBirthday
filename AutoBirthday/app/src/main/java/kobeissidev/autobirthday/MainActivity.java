@@ -32,7 +32,6 @@ import static kobeissidev.autobirthday.Settings.loadContacts;
 
 public class MainActivity extends Activity {
     DBHandler dbHandler;
-    String id = "0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +52,16 @@ public class MainActivity extends Activity {
         if (isFirst) {
             run();
         }
-        runNotificationManager();
+        runNotificationManager(getApplicationContext());
         runNotification(notificationManager);
         runInBackground();
     }
 
-    private void runNotificationManager() {
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        id = "auto_birthday_01";
-        CharSequence name = getString(R.string.channel_name);
-        String description = getString(R.string.channel_description);
+    public static NotificationManager runNotificationManager(Context context) {
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        String id = "auto_birthday_01";
+        CharSequence name = context.getString(R.string.channel_name);
+        String description = context.getString(R.string.channel_description);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 
@@ -74,13 +73,14 @@ public class MainActivity extends Activity {
                 mChannel.setDescription(description);
                 mChannel.enableVibration(false);
                 mNotificationManager.createNotificationChannel(mChannel);
-
             }
         }
+        return mNotificationManager;
     }
 
     private void runNotification(NotificationManager notificationManager) {
         Notification notification;
+        String message="Tap to open AutoBirthday!";
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
 
             Notification.Builder builder = new Notification.Builder(this, "auto_birthday_01")
                     .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Tap to open AutoBirthday.")
+                    .setContentText(message)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
                     .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
         } else {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Tap to open AutoBirthday.")
+                    .setContentText(message)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
