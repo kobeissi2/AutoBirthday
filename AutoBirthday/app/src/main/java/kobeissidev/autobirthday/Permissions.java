@@ -27,17 +27,28 @@ public class Permissions {
         int permissionCheckContacts = ContextCompat.checkSelfPermission(appContext, Manifest.permission.READ_CONTACTS);
         int permissionCheckSMS = ContextCompat.checkSelfPermission(appContext, Manifest.permission.SEND_SMS);
         int permissionCheckPhoneState = ContextCompat.checkSelfPermission(appContext, Manifest.permission.READ_PHONE_STATE);
+        int permissionCheckBoot = ContextCompat.checkSelfPermission(appContext, Manifest.permission.RECEIVE_BOOT_COMPLETED);
+
         if (permissionCheckContacts != PackageManager.PERMISSION_GRANTED || permissionCheckSMS != PackageManager.PERMISSION_GRANTED
-                || permissionCheckPhoneState != PackageManager.PERMISSION_GRANTED) {
+                || permissionCheckPhoneState != PackageManager.PERMISSION_GRANTED || permissionCheckBoot != PackageManager.PERMISSION_GRANTED) {
+
             if (ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.READ_CONTACTS) ||
                     ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.SEND_SMS) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.READ_PHONE_STATE)) {
-                ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE}, 1);
+                    ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.READ_PHONE_STATE) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(appActivity, Manifest.permission.RECEIVE_BOOT_COMPLETED)) {
+
+                ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECEIVE_BOOT_COMPLETED}, 1);
+
             } else {
-                ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE}, MY_PERMISSIONS_REQUEST);
+
+                ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECEIVE_BOOT_COMPLETED}, MY_PERMISSIONS_REQUEST);
             }
         }
-        if (permissionCheckContacts == PackageManager.PERMISSION_GRANTED && permissionCheckSMS == PackageManager.PERMISSION_GRANTED && permissionCheckPhoneState == PackageManager.PERMISSION_GRANTED) {
+
+        if (permissionCheckContacts == PackageManager.PERMISSION_GRANTED && permissionCheckSMS == PackageManager.PERMISSION_GRANTED
+                && permissionCheckPhoneState == PackageManager.PERMISSION_GRANTED && permissionCheckBoot == PackageManager.PERMISSION_GRANTED) {
             return true;
         }
         return false;

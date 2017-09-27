@@ -51,7 +51,7 @@ public class MainActivity extends Activity {
         }
         if (isFirst) {
             run();
-        }
+    }
 
         runNotificationManager();
         runNotification(notificationManager);
