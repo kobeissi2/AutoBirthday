@@ -6,6 +6,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 
+@SuppressWarnings("All")
+
 public class Utility {
     public static void scheduleJob(Context context) {
         ComponentName serviceComponent = new ComponentName(context, MyJobService.class);
