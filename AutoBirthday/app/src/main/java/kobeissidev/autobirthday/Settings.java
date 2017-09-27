@@ -82,7 +82,6 @@ public class Settings extends Activity {
         } else {
             birthdayCheckBox.setChecked(false);
         }
-
         setVisibility(birthdayChecked, birthdayEditText);
     }
 
@@ -105,6 +104,7 @@ public class Settings extends Activity {
         } else {
             timeCheckBox.setChecked(false);
         }
+        setVisibility(timeChecked, timeTextView);
     }
 
     private void saveTimePreferences() {
@@ -193,6 +193,7 @@ public class Settings extends Activity {
     }
 
     public void timeCheck(View view) {
+        final boolean isUser24Hour = DateFormat.is24HourFormat(getApplicationContext());
         if (timeCheckBox.isChecked()) {
             timeChecked = true;
             if (timeTextView.getText().toString().equals(timeText)) {
@@ -200,7 +201,13 @@ public class Settings extends Activity {
             }
         } else {
             timeChecked = false;
+            if (!isUser24Hour) {
+                timeText = "Time to send text: 12:00 AM.";
+            } else {
+                timeText = "Time to send text: 00:00.";
+            }
         }
+        Log.e("Time", timeText);
         setVisibility(timeChecked, timeTextView);
         saveTimePreferences();
     }
