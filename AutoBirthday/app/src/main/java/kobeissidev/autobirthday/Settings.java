@@ -22,14 +22,12 @@ import java.util.Calendar;
 public class Settings extends Activity {
     private CheckBox timeCheckBox;
     private CheckBox birthdayCheckBox;
-    private CheckBox notificationCheckBox;
     private CheckBox defaultLoadCheckBox;
     private EditText birthdayEditText;
     private TextView timeTextView;
     private boolean birthdayChecked;
     private boolean timeChecked;
     private boolean loadChecked;
-    private static boolean notificationChecked;
     private String birthdayText;
     private String timeText;
 
@@ -45,14 +43,12 @@ public class Settings extends Activity {
         birthdayCheckBox = findViewById(R.id.birthdayCheckBox);
         defaultLoadCheckBox = findViewById(R.id.defaultLoadCheckBox);
         timeCheckBox = findViewById(R.id.timeCheckBox);
-        notificationCheckBox=findViewById(R.id.notificationCheckBox);
         birthdayEditText = findViewById(R.id.birthdayEditText);
         timeTextView = findViewById(R.id.timeTextView);
 
         setBirthdayPreferences();
         setTimePreferences();
         setLoadPreferences();
-        setNotificationPreferences();
 
         birthdayCheck(findViewById(android.R.id.content));
         setCheckBox(birthdayChecked, birthdayCheckBox);
@@ -65,11 +61,6 @@ public class Settings extends Activity {
     public static boolean getLoadChecked(Context context) {
         SharedPreferences sharedTime = context.getSharedPreferences("loadPrefs", Context.MODE_PRIVATE);
         return sharedTime.getBoolean("loadChecked", false);
-    }
-
-    public static boolean getNotificationChecked(Context context) {
-        SharedPreferences sharedTime = context.getSharedPreferences("notiPrefs", Context.MODE_PRIVATE);
-        return sharedTime.getBoolean("notificationChecked", true);
     }
 
     private void setCheckBox(boolean isChecked, CheckBox checkBox) {
@@ -142,23 +133,6 @@ public class Settings extends Activity {
         loadEditor.apply();
     }
 
-    private void setNotificationPreferences() {
-        SharedPreferences sharedTime = getSharedPreferences("notiPrefs", Context.MODE_PRIVATE);
-        notificationChecked = sharedTime.getBoolean("notificationChecked", true);
-
-        if (notificationChecked) {
-            notificationCheckBox.setChecked(true);
-        } else {
-            notificationCheckBox.setChecked(false);
-        }
-    }
-
-    private void saveNotificationPreferences() {
-        SharedPreferences sharedTime = getSharedPreferences("notiPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor loadEditor = sharedTime.edit();
-        loadEditor.putBoolean("notificationChecked", notificationChecked);
-        loadEditor.apply();
-    }
     private void showTimePicker() {
         final boolean isUser24Hour = DateFormat.is24HourFormat(this);
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -233,11 +207,6 @@ public class Settings extends Activity {
     public void defaultLoad(View view) {
         loadChecked = defaultLoadCheckBox.isChecked();
         saveLoadPreferences();
-    }
-
-    public void defaultNotification(View view) {
-        notificationChecked = notificationCheckBox.isChecked();
-        saveNotificationPreferences();
     }
 
     @Override
@@ -346,7 +315,6 @@ public class Settings extends Activity {
         saveBirthdayPreferences();
         saveTimePreferences();
         saveLoadPreferences();
-        saveNotificationPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
@@ -357,7 +325,6 @@ public class Settings extends Activity {
         saveBirthdayPreferences();
         saveTimePreferences();
         saveLoadPreferences();
-        saveNotificationPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
@@ -368,7 +335,6 @@ public class Settings extends Activity {
         saveBirthdayPreferences();
         saveTimePreferences();
         saveLoadPreferences();
-        saveNotificationPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
@@ -379,7 +345,6 @@ public class Settings extends Activity {
         saveBirthdayPreferences();
         saveTimePreferences();
         saveLoadPreferences();
-        saveNotificationPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }

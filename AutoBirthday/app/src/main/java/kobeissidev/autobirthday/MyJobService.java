@@ -3,13 +3,24 @@ package kobeissidev.autobirthday;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
-import android.util.Log;
+import android.os.Build;
 
-public class MyJobService extends JobService{
+public class MyJobService extends JobService {
+    Intent service;
+
+    @Override
+    public void onCreate() {
+        service = new Intent(getApplicationContext(), Message.class);
+    }
+
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        Intent service = new Intent(getApplicationContext(), Message.class);
-        getApplicationContext().startService(service);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(service);
+        } else {
+            startService(service);
+        }
+
         Utility.scheduleJob(getApplicationContext());
         return false;
     }

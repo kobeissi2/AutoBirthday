@@ -6,14 +6,12 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 
-import java.util.concurrent.TimeUnit;
-
 @TargetApi(23)
 public class Utility {
     public static void scheduleJob(Context context) {
         ComponentName serviceComponent = new ComponentName(context, MyJobService.class);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setMinimumLatency(30000);
+        builder.setMinimumLatency(60000);
         builder.setOverrideDeadline(60000);
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
         jobScheduler.schedule(builder.build());

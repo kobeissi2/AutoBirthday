@@ -2,26 +2,21 @@ package kobeissidev.autobirthday;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.job.JobParameters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -32,7 +27,6 @@ import android.widget.Toast;
 import java.text.DateFormatSymbols;
 
 import static kobeissidev.autobirthday.Settings.getLoadChecked;
-import static kobeissidev.autobirthday.Settings.getNotificationChecked;
 import static kobeissidev.autobirthday.Settings.loadContacts;
 
 public class MainActivity extends Activity {
@@ -59,14 +53,8 @@ public class MainActivity extends Activity {
             run();
         }
 
-        if (getNotificationChecked(this)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                runNotificationManager();
-            }
-            runNotification(notificationManager);
-        } else {
-            notificationManager.cancelAll();
-        }
+        runNotificationManager();
+        runNotification(notificationManager);
         runInBackground();
     }
 
@@ -76,13 +64,14 @@ public class MainActivity extends Activity {
         id = "auto_birthday_01";
         CharSequence name = getString(R.string.channel_name);
         String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_LOW;
+        int importance = NotificationManager.IMPORTANCE_NONE;
         NotificationChannel mChannel = new NotificationChannel(id, name, importance);
         mChannel.setDescription(description);
         mChannel.enableLights(true);
         mChannel.setLightColor(Color.WHITE);
         mChannel.enableVibration(false);
         mNotificationManager.createNotificationChannel(mChannel);
+
     }
 
     private void runNotification(NotificationManager notificationManager) {
@@ -96,7 +85,6 @@ public class MainActivity extends Activity {
         builder.setContentText("Tap to open AutoBirthday.");
         builder.setOngoing(true);
         notificationManager.notify(1, builder.build());
-
     }
 
     private void run() {
@@ -106,7 +94,7 @@ public class MainActivity extends Activity {
             displayContacts();
         }
     }
-    
+
     private void runInBackground() {
         Utility.scheduleJob(this);
     }

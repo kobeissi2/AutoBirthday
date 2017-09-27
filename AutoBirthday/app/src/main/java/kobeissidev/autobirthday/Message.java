@@ -11,7 +11,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -128,9 +130,39 @@ public class Message extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (isDayToSendMessage() && isTimeToSendMessage()) {
             contactNumber = getContactNumber(contactName);
             sendSMS();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            Notification.Builder builder = new Notification.Builder(this, "auto_birthday_01")
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText("Test")
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.ic_stat_cake)
+                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
+                    .setContentIntent(pendingIntent);
+                    
+            Notification notification = builder.build();
+            startForeground(1, notification);
+
+
+        } else {
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText("Test")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.ic_stat_cake)
+                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
+                    .setContentIntent(pendingIntent);
+
+            Notification notification = builder.build();
+            startForeground(1, notification);
         }
         return START_STICKY;
     }
