@@ -154,7 +154,7 @@ public class Message extends Service {
 
     private Notification notificationSet(String text) {
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(getApplicationContext(),MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(getApplicationContext(), MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
@@ -191,6 +191,4 @@ public class Message extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-
 }

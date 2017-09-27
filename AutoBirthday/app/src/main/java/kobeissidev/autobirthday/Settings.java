@@ -318,26 +318,33 @@ public class Settings extends Activity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        saveBirthdayPreferences();
-        saveTimePreferences();
-        saveLoadPreferences();
+        setText();
+        saveAll();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
         Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
+    private void setText() {
         if (birthdayChecked) {
             birthdayText = birthdayEditText.getText().toString();
         }
         if (timeChecked) {
             timeText = timeTextView.getText().toString();
         }
+    }
+
+    private void saveAll(){
         saveBirthdayPreferences();
         saveTimePreferences();
         saveLoadPreferences();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        setText();
+        saveAll();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
@@ -345,9 +352,8 @@ public class Settings extends Activity {
     @Override
     public void onStop() {
         super.onStop();
-        saveBirthdayPreferences();
-        saveTimePreferences();
-        saveLoadPreferences();
+        setText();
+        saveAll();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
@@ -355,9 +361,8 @@ public class Settings extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        saveBirthdayPreferences();
-        saveTimePreferences();
-        saveLoadPreferences();
+        setText();
+        saveAll();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
     }
