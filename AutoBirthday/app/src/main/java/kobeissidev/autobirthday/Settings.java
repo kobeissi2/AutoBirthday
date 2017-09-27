@@ -222,7 +222,8 @@ public class Settings extends Activity {
     }
 
     public void birthdayCheck(View view) {
-        if (birthdayCheckBox.isChecked()) {
+        boolean isChecked=birthdayCheckBox.isChecked();
+        if (isChecked) {
             birthdayChecked = true;
         } else {
             birthdayChecked = false;

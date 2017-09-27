@@ -50,8 +50,9 @@ public class MainActivity extends Activity {
         if (isFirst) {
             run();
         }
+
         runNotificationManager(getApplicationContext());
-        runNotification(notificationManager);
+        runNotification(getApplicationContext(), notificationManager);
         runInBackground();
     }
 
@@ -76,31 +77,31 @@ public class MainActivity extends Activity {
         return mNotificationManager;
     }
 
-    private void runNotification(NotificationManager notificationManager) {
+    public static void runNotification(Context context, NotificationManager notificationManager) {
         Notification notification;
         String message="Tap to open AutoBirthday!";
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            Notification.Builder builder = new Notification.Builder(this, "auto_birthday_01")
-                    .setContentTitle(getString(R.string.app_name))
+            Notification.Builder builder = new Notification.Builder(context, "auto_birthday_01")
+                    .setContentTitle(context.getString(R.string.app_name))
                     .setContentText(message)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher_round))
                     .setContentIntent(pendingIntent);
 
             notification = builder.build();
         } else {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setContentTitle(getString(R.string.app_name))
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                    .setContentTitle(context.getString(R.string.app_name))
                     .setContentText(message)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
-                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher_round))
                     .setContentIntent(pendingIntent);
 
             notification = builder.build();

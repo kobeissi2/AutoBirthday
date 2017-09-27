@@ -147,12 +147,12 @@ public class Message extends Service {
 
         NotificationManager notificationManager = runNotificationManager(getApplicationContext());
         notificationManager.cancelAll();
-        notificationManager.notify(1, notificationSet(getIntent(this), message));
+        notificationManager.notify(1, notificationSet(message));
 
         return START_STICKY;
     }
 
-    private Notification notificationSet(Intent intent, String text) {
+    private Notification notificationSet(String text) {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(getApplicationContext(),MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
 
