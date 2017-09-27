@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.CheckBox;
@@ -211,19 +212,17 @@ public class Settings extends Activity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ENTER && birthdayChecked)) {
+        if (((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ENTER) && birthdayChecked)) {
             birthdayText = birthdayEditText.getText().toString();
         }
-        if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ENTER && timeChecked)) {
+        if (((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ENTER) && timeChecked)) {
             timeText = timeTextView.getText().toString();
         }
-        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
         return super.onKeyDown(keyCode, event);
     }
 
     public void birthdayCheck(View view) {
-        boolean isChecked=birthdayCheckBox.isChecked();
-        if (isChecked) {
+        if (birthdayCheckBox.isChecked()) {
             birthdayChecked = true;
         } else {
             birthdayChecked = false;
@@ -318,11 +317,18 @@ public class Settings extends Activity {
         saveLoadPreferences();
         setVisibility(birthdayChecked, birthdayEditText);
         setVisibility(timeChecked, timeTextView);
+        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        if (birthdayChecked) {
+            birthdayText = birthdayEditText.getText().toString();
+        }
+        if (timeChecked) {
+            timeText = timeTextView.getText().toString();
+        }
         saveBirthdayPreferences();
         saveTimePreferences();
         saveLoadPreferences();
