@@ -207,7 +207,6 @@ public class Settings extends Activity {
                 timeText = "Time to send text: 00:00.";
             }
         }
-        Log.e("Time", timeText);
         setVisibility(timeChecked, timeTextView);
         saveTimePreferences();
     }
