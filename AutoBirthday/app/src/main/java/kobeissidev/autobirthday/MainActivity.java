@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobParameters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -107,14 +108,7 @@ public class MainActivity extends Activity {
     }
     
     private void runInBackground() {
-        Intent intent = new Intent(MainActivity.this, Message.class);
-        PendingIntent smsPendingIntent = PendingIntent.getService(MainActivity.this, 0, intent, 0);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), smsPendingIntent);
-        } else {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, smsPendingIntent);
-        }
+        Utility.scheduleJob(this);
     }
 
     @Override
