@@ -9,6 +9,5 @@ public class MyReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         Utility.scheduleJob(context);
-
     }
 }

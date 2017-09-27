@@ -150,7 +150,7 @@ public class Message extends Service {
 
             Notification.Builder builder = new Notification.Builder(this, "auto_birthday_01")
                     .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Test")
+                    .setContentText("Tap to open AutoBirthday.")
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
                     .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
@@ -163,8 +163,8 @@ public class Message extends Service {
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Test")
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentText("Tap to open AutoBirthday.")
+                    .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
                     .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))

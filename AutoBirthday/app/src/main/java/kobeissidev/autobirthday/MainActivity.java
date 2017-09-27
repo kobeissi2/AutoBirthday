@@ -3,6 +3,7 @@ package kobeissidev.autobirthday;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -51,38 +52,62 @@ public class MainActivity extends Activity {
         }
         if (isFirst) {
             run();
-    }
-
+        }
         runNotificationManager();
         runNotification(notificationManager);
         runInBackground();
     }
 
-    @TargetApi(26)
     private void runNotificationManager() {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         id = "auto_birthday_01";
         CharSequence name = getString(R.string.channel_name);
         String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_MIN;
-        NotificationChannel mChannel = new NotificationChannel(id, name, importance);
-        mChannel.setDescription(description);
-        mChannel.enableVibration(false);
-        mNotificationManager.createNotificationChannel(mChannel);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+
+            int importance = NotificationManager.IMPORTANCE_MIN;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                NotificationChannel mChannel = new NotificationChannel(id, name, importance);
+                mChannel.setDescription(description);
+                mChannel.enableVibration(false);
+                mNotificationManager.createNotificationChannel(mChannel);
+
+            }
+        }
     }
 
     private void runNotification(NotificationManager notificationManager) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, id);
-        builder.setSmallIcon(R.drawable.ic_stat_cake);
+        Notification notification;
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(pendingIntent);
-        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round));
-        builder.setContentTitle("AutoBirthday is Running!");
-        builder.setContentText("Tap to open AutoBirthday.");
-        builder.setOngoing(true);
-        notificationManager.notify(1, builder.build());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            Notification.Builder builder = new Notification.Builder(this, "auto_birthday_01")
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText("Tap to open AutoBirthday.")
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.ic_stat_cake)
+                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
+                    .setContentIntent(pendingIntent);
+
+            notification = builder.build();
+        } else {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setContentText("Tap to open AutoBirthday.")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.ic_stat_cake)
+                    .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
+                    .setContentIntent(pendingIntent);
+
+            notification = builder.build();
+        }
+        notificationManager.notify(1, notification);
     }
 
     private void run() {
