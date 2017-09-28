@@ -14,11 +14,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -29,9 +29,11 @@ import android.widget.Toast;
 import java.text.DateFormatSymbols;
 
 import static kobeissidev.autobirthday.Settings.getLoadChecked;
+import static kobeissidev.autobirthday.Settings.getThemeSelected;
 import static kobeissidev.autobirthday.Settings.loadContacts;
 
-public class MainActivity extends Activity {
+
+public class MainActivity extends BaseActivity {
 
     DBHandler dbHandler;
     boolean granted;
@@ -47,15 +49,6 @@ public class MainActivity extends Activity {
         dbHandler = new DBHandler(this);
         final boolean isFirst = MyPreferences.isFirst(MainActivity.this);
         granted = permissions.getPermission();
-
-        if (getActionBar() != null) {
-
-            getActionBar().setTitle(" AutoBirthday");
-            getActionBar().setDisplayShowHomeEnabled(true);
-            getActionBar().setLogo(getDrawable(R.drawable.ic_stat_cake));
-            getActionBar().setDisplayUseLogoEnabled(true);
-
-        }
 
         if (granted) {
 
@@ -82,6 +75,45 @@ public class MainActivity extends Activity {
         runNotification(getApplicationContext(), notificationManager);
 
         runInBackground();
+
+        setThemes();
+
+    }
+
+    private void setThemes() {
+
+        if (getActionBar() != null) {
+
+            getActionBar().setTitle(" AutoBirthday");
+            getActionBar().setDisplayShowHomeEnabled(true);
+            getActionBar().setLogo(getDrawable(R.drawable.ic_stat_cake));
+            getActionBar().setDisplayUseLogoEnabled(true);
+
+        }
+
+        String theme = getThemeSelected(getApplicationContext());
+
+        switch (theme) {
+
+            case "Material Dark":
+
+                setTheme(R.style.MaterialBlack);
+
+                break;
+
+            case "Material Red":
+
+                setTheme(R.style.MaterialAutoBirthday);
+
+                break;
+
+            default:
+
+                setTheme(R.style.MaterialBlue);
+
+                break;
+
+        }
 
     }
 
@@ -243,6 +275,8 @@ public class MainActivity extends Activity {
 
         int count = dbHandler.getContactCount();
         GridLayout gridLayout = findViewById(R.id.gridLayout);
+
+        gridLayout.setPadding(0,20,0,0);
 
         //Creates the text views and radio buttons programmatically.
 

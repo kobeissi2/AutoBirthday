@@ -10,8 +10,22 @@
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:windowBackground">@color/colorBackgroundRed</item>
+        <item name="android:navigationBarColor">@color/materialRed</item>
         <item name="android:textColorPrimaryInverse">@android:color/background_dark</item>
+    </style>
+
+    <style name="MaterialBlack" parent="android:Theme.Material" >
+        <item name="android:colorAccent">@color/accent_material_white</item>
+    </style>
+
+    <style name="MaterialBlue" parent="android:Theme.Material" >
+        <item name="android:colorAccent">@color/accent_material_white</item>
+        <item name="android:colorPrimary">@color/primary_material_blue</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark_material_blue</item>
+        <item name="android:colorBackground">@color/background_material_blue</item>
+        <item name="android:navigationBarColor">@color/primary_material_blue</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
     </style>
 
 </resources>

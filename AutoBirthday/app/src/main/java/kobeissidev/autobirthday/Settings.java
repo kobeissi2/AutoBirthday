@@ -9,18 +9,19 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.Calendar;
 
-public class Settings extends Activity {
+public class Settings extends BaseActivity {
 
     private CheckBox timeCheckBox;
     private CheckBox birthdayCheckBox;
@@ -32,6 +33,8 @@ public class Settings extends Activity {
     private boolean loadChecked;
     private String birthdayText;
     private String timeText;
+    private String selectedTheme;
+    private Spinner themeSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +56,13 @@ public class Settings extends Activity {
         timeCheckBox = findViewById(R.id.timeCheckBox);
         birthdayEditText = findViewById(R.id.birthdayEditText);
         timeTextView = findViewById(R.id.timeTextView);
+        themeSpinner = findViewById(R.id.themeSpinner);
 
         setBirthdayPreferences();
         setTimePreferences();
         setLoadPreferences();
+        setThemePreferences();
+        fillThemeSpinner();
 
         birthdayCheck(findViewById(android.R.id.content));
         setCheckBox(birthdayChecked, birthdayCheckBox);
@@ -69,6 +75,88 @@ public class Settings extends Activity {
 
         birthdayEditText.setTextSize(16);
         timeTextView.setTextSize(16);
+
+    }
+
+    private void fillThemeSpinner() {
+
+        themeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                if (themeSpinner.getSelectedItem().toString().equals("Material Dark")) {
+
+                    selectedTheme = "Material Dark";
+
+                } else if (themeSpinner.getSelectedItem().toString().equals("Material Red")) {
+
+                    selectedTheme = "Material Red";
+
+                } else {
+
+                    selectedTheme = "Material Blue";
+
+                }
+
+                saveThemePreferences();
+
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
+        });
+
+    }
+
+    private int getPosition() {
+
+        switch (selectedTheme) {
+
+            case "Material Dark":
+
+                return 0;
+
+            case "Material Red":
+
+                return 1;
+
+            default:
+
+                return 2;
+
+        }
+
+    }
+
+    private void setThemePreferences() {
+
+        SharedPreferences sharedTheme = getSharedPreferences("themePrefs", Context.MODE_PRIVATE);
+
+        selectedTheme = sharedTheme.getString("selectedTheme", "Material Dark");
+
+        themeSpinner.setSelection(getPosition());
+
+        fillThemeSpinner();
+
+    }
+
+    private void saveThemePreferences() {
+
+        SharedPreferences sharedTheme = getSharedPreferences("themePrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor themeEditor = sharedTheme.edit();
+
+        themeEditor.putString("selectedTheme", selectedTheme);
+        themeEditor.apply();
+
+    }
+
+    public static String getThemeSelected(Context context) {
+
+        SharedPreferences sharedTheme = context.getSharedPreferences("themePrefs", Context.MODE_PRIVATE);
+
+        return sharedTheme.getString("selectedTheme", "Material Dark");
 
     }
 
@@ -399,7 +487,7 @@ public class Settings extends Activity {
 
     public static void loadContacts(Context context, DBHandler dbHandler, Boolean granted) {
 
-        if(granted){
+        if (granted) {
 
             ContentResolver contentResolver = context.getContentResolver();
             String[] projection = new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME};
@@ -464,9 +552,9 @@ public class Settings extends Activity {
 
             }
 
-        }else{
+        } else {
 
-            Toast.makeText(context.getApplicationContext(),"ERROR! Permissions Not Granted!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context.getApplicationContext(), "ERROR! Permissions Not Granted!", Toast.LENGTH_SHORT).show();
 
         }
 
@@ -536,6 +624,8 @@ public class Settings extends Activity {
         saveTimePreferences();
 
         saveLoadPreferences();
+
+        saveThemePreferences();
 
     }
 
