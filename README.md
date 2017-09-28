@@ -1,7 +1,9 @@
 # AutoBirthday
 Send Birthday Messages Automatically!
 
-(AutoBirthday is still in progress. A Google Play link will be posted here when it is finished).
+AutoBirthday is officially out!
+
+Link: 
 
 # What is AutoBirthday?
 
@@ -13,4 +15,4 @@ Send Birthday Messages Automatically!
 	
 	• AutoBirthday is using Material Design so it is much better looking.
 	
-	• AutoBirthday will work without crashing!
+	• AutoBirthday will work without crashing! It supports Android Oreo!
