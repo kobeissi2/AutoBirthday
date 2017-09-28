@@ -3,7 +3,7 @@ Send Birthday Messages Automatically!
 
 AutoBirthday is officially out!
 
-Link: 
+Link: https://play.google.com/store/apps/details?id=kobeissidev.autobirthday
 
 # What is AutoBirthday?
 
