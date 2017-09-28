@@ -15,9 +15,15 @@ public class MyReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
         final NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+
         runNotificationManager(context);
+
         runNotification(context, notificationManager);
+
         Utility.scheduleJob(context);
+
     }
+
 }

@@ -12,18 +12,25 @@ import android.support.v4.content.ContextCompat;
 
 import static java.security.AccessController.getContext;
 
+@SuppressWarnings("All")
+
 public class Permissions {
+
     private Context appContext;
     private Activity appActivity;
     private static final int MY_PERMISSIONS_REQUEST = 0;
 
     public Permissions(Context context, Activity activity) {
+
         appContext = context;
         appActivity = activity;
+
         checkPermissions();
+
     }
 
     private boolean checkPermissions() {
+
         int permissionCheckContacts = ContextCompat.checkSelfPermission(appContext, Manifest.permission.READ_CONTACTS);
         int permissionCheckSMS = ContextCompat.checkSelfPermission(appContext, Manifest.permission.SEND_SMS);
         int permissionCheckPhoneState = ContextCompat.checkSelfPermission(appContext, Manifest.permission.READ_PHONE_STATE);
@@ -44,17 +51,26 @@ public class Permissions {
 
                 ActivityCompat.requestPermissions(appActivity, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
                         Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECEIVE_BOOT_COMPLETED}, MY_PERMISSIONS_REQUEST);
+
             }
+
         }
 
         if (permissionCheckContacts == PackageManager.PERMISSION_GRANTED && permissionCheckSMS == PackageManager.PERMISSION_GRANTED
                 && permissionCheckPhoneState == PackageManager.PERMISSION_GRANTED && permissionCheckBoot == PackageManager.PERMISSION_GRANTED) {
+
             return true;
+
         }
+
         return false;
+
     }
 
     public boolean getPermission() {
+
         return checkPermissions();
+
     }
+
 }
