@@ -17,6 +17,8 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -32,6 +34,7 @@ import static kobeissidev.autobirthday.Settings.loadContacts;
 public class MainActivity extends Activity {
 
     DBHandler dbHandler;
+    boolean granted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +42,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Permissions permissions = new Permissions(this, MainActivity.this);
+        Permissions permissions = new Permissions(this, MainActivity.this);
         final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         dbHandler = new DBHandler(this);
         final boolean isFirst = MyPreferences.isFirst(MainActivity.this);
+        granted = permissions.getPermission();
 
         if (getActionBar() != null) {
 
@@ -50,14 +54,15 @@ public class MainActivity extends Activity {
             getActionBar().setDisplayShowHomeEnabled(true);
             getActionBar().setLogo(getDrawable(R.drawable.ic_stat_cake));
             getActionBar().setDisplayUseLogoEnabled(true);
-            
+
         }
 
-        if (permissions.getPermission()) {
+        if (granted) {
 
             if (getLoadChecked(this)) {
 
-                loadContacts(getApplicationContext(), dbHandler);
+                loadContacts(getApplicationContext(), dbHandler, granted);
+
                 Toast.makeText(this, "New Contacts Loaded!", Toast.LENGTH_SHORT).show();
 
             }
@@ -185,7 +190,7 @@ public class MainActivity extends Activity {
 
             case R.id.contact_reload_menu:
                 dbHandler.startOver();
-                menuLoadContacts("Table Is Now Empty! Loading Contacts!");
+                menuLoadContacts("Table Is Now Empty!\nLoading Contacts!");
                 return true;
 
             case R.id.action_settings:
@@ -200,7 +205,7 @@ public class MainActivity extends Activity {
 
     private void menuLoadContacts(String toastText) {
 
-        loadContacts(getApplicationContext(), dbHandler);
+        loadContacts(getApplicationContext(), dbHandler, granted);
 
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
 
@@ -238,8 +243,6 @@ public class MainActivity extends Activity {
 
         int count = dbHandler.getContactCount();
         GridLayout gridLayout = findViewById(R.id.gridLayout);
-
-        gridLayout.setPadding(0,50,0,0);
 
         //Creates the text views and radio buttons programmatically.
 
@@ -401,7 +404,6 @@ public class MainActivity extends Activity {
     }
 
     public void showNoContactDialog() {
-
         new AlertDialog.Builder(MainActivity.this)
                 .setIcon(android.R.drawable.sym_contact_card)
                 .setTitle("No Contacts!")
@@ -411,7 +413,8 @@ public class MainActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
-                        loadContacts(getApplicationContext(), dbHandler);
+
+                        loadContacts(getApplicationContext(), dbHandler, granted);
 
                         finish();
 

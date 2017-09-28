@@ -397,68 +397,76 @@ public class Settings extends Activity {
 
     }
 
-    public static void loadContacts(Context context, DBHandler dbHandler) {
+    public static void loadContacts(Context context, DBHandler dbHandler, Boolean granted) {
 
-        ContentResolver contentResolver = context.getContentResolver();
-        String[] projection = new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME};
-        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
-                projection, null, null, ContactsContract.Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
+        if(granted){
 
-        if (cursor != null) {
+            ContentResolver contentResolver = context.getContentResolver();
+            String[] projection = new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME};
+            Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                    projection, null, null, ContactsContract.Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
 
-            while (cursor.moveToNext()) {
+            if (cursor != null) {
 
-                String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data._ID));
-                String displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
-                String phoneNumber = "";
-                String columns[] = {
-                        ContactsContract.CommonDataKinds.Event.START_DATE,
-                        ContactsContract.CommonDataKinds.Event.TYPE,
-                        ContactsContract.CommonDataKinds.Event.MIMETYPE,
-                };
+                while (cursor.moveToNext()) {
 
-                String where = ContactsContract.CommonDataKinds.Event.TYPE + "=" +
-                        ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY +
-                        " and " + ContactsContract.CommonDataKinds.Event.MIMETYPE + " = '" +
-                        ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE
-                        + "' and " + ContactsContract.Data.CONTACT_ID + " = " + contactId;
-                String sortOrder = ContactsContract.Contacts.DISPLAY_NAME;
+                    String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Data._ID));
+                    String displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
+                    String phoneNumber = "";
+                    String columns[] = {
+                            ContactsContract.CommonDataKinds.Event.START_DATE,
+                            ContactsContract.CommonDataKinds.Event.TYPE,
+                            ContactsContract.CommonDataKinds.Event.MIMETYPE,
+                    };
 
-                Cursor birthdayCur = contentResolver.query(ContactsContract.Data.CONTENT_URI,
-                        columns, where, null, sortOrder);
+                    String where = ContactsContract.CommonDataKinds.Event.TYPE + "=" +
+                            ContactsContract.CommonDataKinds.Event.TYPE_BIRTHDAY +
+                            " and " + ContactsContract.CommonDataKinds.Event.MIMETYPE + " = '" +
+                            ContactsContract.CommonDataKinds.Event.CONTENT_ITEM_TYPE
+                            + "' and " + ContactsContract.Data.CONTACT_ID + " = " + contactId;
+                    String sortOrder = ContactsContract.Contacts.DISPLAY_NAME;
 
-                if (birthdayCur != null && birthdayCur.getCount() > 0) {
+                    Cursor birthdayCur = contentResolver.query(ContactsContract.Data.CONTENT_URI,
+                            columns, where, null, sortOrder);
 
-                    while (birthdayCur.moveToNext()) {
+                    if (birthdayCur != null && birthdayCur.getCount() > 0) {
 
-                        String birthday = birthdayCur.getString(birthdayCur.getColumnIndex(
-                                ContactsContract.CommonDataKinds.Event.START_DATE));
+                        while (birthdayCur.moveToNext()) {
 
-                        birthday = birthday.substring(2, birthday.length());
+                            String birthday = birthdayCur.getString(birthdayCur.getColumnIndex(
+                                    ContactsContract.CommonDataKinds.Event.START_DATE));
 
-                        phoneNumber = getPhoneNumber(context, displayName);
+                            birthday = birthday.substring(2, birthday.length());
 
-                        Contact contact = new Contact(displayName, birthday, "SMS", phoneNumber);
+                            phoneNumber = getPhoneNumber(context, displayName);
 
-                        dbHandler.insertOrUpdate(contact);
+                            Contact contact = new Contact(displayName, birthday, "SMS", phoneNumber);
+
+                            dbHandler.insertOrUpdate(contact);
+
+                        }
+
+                    }
+
+                    if (birthdayCur != null) {
+
+                        birthdayCur.close();
 
                     }
 
                 }
 
-                if (birthdayCur != null) {
+            }
 
-                    birthdayCur.close();
+            if (cursor != null) {
 
-                }
+                cursor.close();
 
             }
 
-        }
+        }else{
 
-        if (cursor != null) {
-
-            cursor.close();
+            Toast.makeText(context.getApplicationContext(),"ERROR! Permissions Not Granted!",Toast.LENGTH_SHORT).show();
 
         }
 
@@ -529,8 +537,6 @@ public class Settings extends Activity {
 
         saveLoadPreferences();
 
-        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
-
     }
 
     @Override
@@ -546,6 +552,7 @@ public class Settings extends Activity {
 
         setVisibility(timeChecked, timeTextView);
 
+        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
     }
 
     @Override

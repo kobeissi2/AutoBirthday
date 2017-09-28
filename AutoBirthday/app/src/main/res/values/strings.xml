@@ -14,9 +14,10 @@
     <string name="settings">"Settings"</string>
     <string name="reload_contacts">"Reload Contacts"</string>
     <string name="load_contacts">"Load Contacts"</string>
+    <string name="permissions_button">"Ask For Permissions"</string>
 
     <string name="custom_text_time">"Custom Time To Send?"</string>
     <string name="custom_text_bday">"Custom Birthday Message?"</string>
-    <string name="custom_text_load">"Load Contacts On Startup? \n[Not Recommended]"</string>
+    <string name="custom_text_load">"Load Contacts On Startup? [Not Recommended]"</string>
     <string name="custom_text_notification">"Enable Notification?"</string>
 </resources>
