@@ -17,6 +17,6 @@
 
     <string name="custom_text_time">"Custom Time To Send?"</string>
     <string name="custom_text_bday">"Custom Birthday Message?"</string>
-    <string name="custom_text_load">"Load Contacts On Startup?"</string>
+    <string name="custom_text_load">"Load Contacts On Startup? \n[Not Recommended]"</string>
     <string name="custom_text_notification">"Enable Notification?"</string>
 </resources>

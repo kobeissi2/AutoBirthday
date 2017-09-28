@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -43,6 +44,15 @@ public class MainActivity extends Activity {
         dbHandler = new DBHandler(this);
         final boolean isFirst = MyPreferences.isFirst(MainActivity.this);
 
+        if (getActionBar() != null) {
+
+            getActionBar().setTitle(" AutoBirthday");
+            getActionBar().setDisplayShowHomeEnabled(true);
+            getActionBar().setLogo(getDrawable(R.drawable.ic_stat_cake));
+            getActionBar().setDisplayUseLogoEnabled(true);
+            
+        }
+
         if (permissions.getPermission()) {
 
             if (getLoadChecked(this)) {
@@ -63,7 +73,9 @@ public class MainActivity extends Activity {
         }
 
         runNotificationManager(getApplicationContext());
+
         runNotification(getApplicationContext(), notificationManager);
+
         runInBackground();
 
     }
@@ -193,6 +205,7 @@ public class MainActivity extends Activity {
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
 
         finish();
+
         startActivity(getIntent());
 
     }
@@ -226,6 +239,8 @@ public class MainActivity extends Activity {
         int count = dbHandler.getContactCount();
         GridLayout gridLayout = findViewById(R.id.gridLayout);
 
+        gridLayout.setPadding(0,50,0,0);
+
         //Creates the text views and radio buttons programmatically.
 
         for (int index = 0; index < count; index++) {
@@ -242,8 +257,9 @@ public class MainActivity extends Activity {
 
         TextView nameTextView = new TextView(this);
 
-        nameTextView.setTextSize(16);
+        nameTextView.setTextSize(18);
         nameTextView.setPadding(20, 20, 20, 20);
+        nameTextView.setTextColor(Color.WHITE);
         nameTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         nameTextView.setText(dbHandler.getContact(index + 1).get_contactName());
 
@@ -271,8 +287,9 @@ public class MainActivity extends Activity {
 
         TextView birthdayTextView = new TextView(this);
 
-        birthdayTextView.setTextSize(16);
+        birthdayTextView.setTextSize(18);
         birthdayTextView.setPadding(20, 20, 20, 20);
+        birthdayTextView.setTextColor(Color.WHITE);
         birthdayTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         birthdayTextView.setText(birthday);
 
@@ -300,7 +317,9 @@ public class MainActivity extends Activity {
         typeRadioButton[1] = new RadioButton(this);
 
         typeRadioButton[0].setText(R.string.SMS);
+        typeRadioButton[0].setTextSize(18);
         typeRadioButton[1].setText(R.string.Off);
+        typeRadioButton[1].setTextSize(18);
 
         typeRadioGroup.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));

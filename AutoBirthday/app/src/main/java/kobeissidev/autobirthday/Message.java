@@ -187,23 +187,27 @@ public class Message extends Service {
         Boolean messageSent = false;
         String message = "Tap to open AutoBirthday!";
 
-        if (isDayToSendMessage() && isTimeToSendMessage()) {
+        if (isDayToSendMessage()) {
 
-            if (!contactName.isEmpty()) {
+            if (isTimeToSendMessage()) {
 
-                for (String contact : contactName) {
+                if (!contactName.isEmpty()) {
 
-                    contactNumber = getContactNumber(contact);
+                    for (String contact : contactName) {
 
-                    sendSMS(contact);
+                        contactNumber = getContactNumber(contact);
 
-                    messageSent = true;
+                        sendSMS(contact);
+
+                        messageSent = true;
+
+                    }
+
+                } else {
+
+                    Log.w("Contact", "Contact Empty!");
 
                 }
-
-            } else {
-
-                Log.w("Contact", "Contact Empty!");
 
             }
 

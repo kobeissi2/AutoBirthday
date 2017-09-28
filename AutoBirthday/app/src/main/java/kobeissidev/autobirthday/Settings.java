@@ -40,7 +40,12 @@ public class Settings extends Activity {
         setContentView(R.layout.activity_settings);
 
         if (getActionBar() != null) {
-            getActionBar().setTitle("Settings");
+
+            getActionBar().setTitle(" Settings");
+            getActionBar().setDisplayShowHomeEnabled(true);
+            getActionBar().setLogo(getDrawable(R.drawable.ic_stat_cake));
+            getActionBar().setDisplayUseLogoEnabled(true);
+
         }
 
         birthdayCheckBox = findViewById(R.id.birthdayCheckBox);
@@ -61,6 +66,9 @@ public class Settings extends Activity {
 
         defaultLoad(findViewById(android.R.id.content));
         setCheckBox(loadChecked, defaultLoadCheckBox);
+
+        birthdayEditText.setTextSize(16);
+        timeTextView.setTextSize(16);
 
     }
 
@@ -521,6 +529,8 @@ public class Settings extends Activity {
 
         saveLoadPreferences();
 
+        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -535,8 +545,6 @@ public class Settings extends Activity {
         setVisibility(birthdayChecked, birthdayEditText);
 
         setVisibility(timeChecked, timeTextView);
-
-        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -553,7 +561,6 @@ public class Settings extends Activity {
 
         setVisibility(timeChecked, timeTextView);
 
-        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -569,7 +576,6 @@ public class Settings extends Activity {
 
         setVisibility(timeChecked, timeTextView);
 
-        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -586,7 +592,6 @@ public class Settings extends Activity {
 
         setVisibility(timeChecked, timeTextView);
 
-        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
     }
 
 }
