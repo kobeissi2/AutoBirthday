@@ -54,7 +54,7 @@ public class MainActivity extends BaseActivity {
 
             if (getLoadChecked(this)) {
 
-                loadContacts(getApplicationContext(), dbHandler, granted);
+                loadContacts(getApplicationContext(), dbHandler);
 
                 Toast.makeText(this, "New Contacts Loaded!", Toast.LENGTH_SHORT).show();
 
@@ -237,7 +237,7 @@ public class MainActivity extends BaseActivity {
 
     private void menuLoadContacts(String toastText) {
 
-        loadContacts(getApplicationContext(), dbHandler, granted);
+        loadContacts(getApplicationContext(), dbHandler);
 
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
 
@@ -448,7 +448,7 @@ public class MainActivity extends BaseActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
 
 
-                        loadContacts(getApplicationContext(), dbHandler, granted);
+                        loadContacts(getApplicationContext(), dbHandler);
 
                         finish();
 
