@@ -1,6 +1,6 @@
 package kobeissidev.autobirthday;
 
-import android.app.Activity;
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -10,13 +10,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridLayout;
@@ -36,7 +37,6 @@ import static kobeissidev.autobirthday.Settings.loadContacts;
 public class MainActivity extends BaseActivity {
 
     DBHandler dbHandler;
-    boolean granted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,39 +44,98 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Permissions permissions = new Permissions(this, MainActivity.this);
         final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         dbHandler = new DBHandler(this);
-        final boolean isFirst = MyPreferences.isFirst(MainActivity.this);
-        granted = permissions.getPermission();
+        final int MY_PERMISSIONS_REQUEST = 0;
+
+        final String MY_PREFERENCES = "my_preferences";
+        final SharedPreferences sharedPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        boolean first = sharedPreferences.getBoolean("first", true);
+        boolean granted = sharedPreferences.getBoolean("granted", false);
+
+        int permissionCheckContacts = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_CONTACTS);
+        int permissionCheckSMS = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS);
+        int permissionCheckPhoneState = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE);
+        int permissionCheckBoot = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECEIVE_BOOT_COMPLETED);
+
+        if (permissionCheckContacts != PackageManager.PERMISSION_GRANTED || permissionCheckSMS != PackageManager.PERMISSION_GRANTED
+                || permissionCheckPhoneState != PackageManager.PERMISSION_GRANTED || permissionCheckBoot != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECEIVE_BOOT_COMPLETED)) {
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECEIVE_BOOT_COMPLETED}, 1);
+
+            } else {
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.SEND_SMS,
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECEIVE_BOOT_COMPLETED}, MY_PERMISSIONS_REQUEST);
+
+            }
+
+        }
+
+        if (permissionCheckContacts == PackageManager.PERMISSION_GRANTED && permissionCheckSMS == PackageManager.PERMISSION_GRANTED
+                && permissionCheckPhoneState == PackageManager.PERMISSION_GRANTED && permissionCheckBoot == PackageManager.PERMISSION_GRANTED) {
+
+            final SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("granted", true);
+            granted = true;
+            editor.apply();
+
+        } else {
+
+            recreate();
+
+        }
 
         if (granted) {
+
+            if (first) {
+                loadContacts(getApplicationContext(), dbHandler);
+                new AlertDialog.Builder(this)
+                        .setIcon(android.R.drawable.ic_dialog_info)
+                        .setTitle("How to Use!")
+                        .setMessage("AutoBirthday does not require an internet connection!" +
+                                "\n\nTo have your contacts appear, you must have their birthdays " +
+                                "stored inside your contacts then press load contacts. " +
+                                "\n\nWhenever you are ready to add more, you can press load contacts from the menu." +
+                                "\n\nIf you change a current contact who is loaded, you must press reload to reflect changes.")
+                        .setPositiveButton("Okay!", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                final SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putBoolean("first", false);
+                                editor.apply();
+                                recreate();
+                            }
+
+                        })
+                        .show();
+            }
 
             if (getLoadChecked(this)) {
 
                 loadContacts(getApplicationContext(), dbHandler);
 
-                Toast.makeText(this, "New Contacts Loaded!", Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(this, "Contacts Loaded!", Toast.LENGTH_SHORT).show();
             }
 
             run();
 
+            runNotificationManager(getApplicationContext());
+
+            runNotification(getApplicationContext(), notificationManager);
+
+            runInBackground();
+
+            setThemes();
+
         }
-
-        if (isFirst) {
-
-            run();
-
-        }
-
-        runNotificationManager(getApplicationContext());
-
-        runNotification(getApplicationContext(), notificationManager);
-
-        runInBackground();
-
-        setThemes();
 
     }
 
@@ -184,15 +243,7 @@ public class MainActivity extends BaseActivity {
 
     private void run() {
 
-        if (dbHandler.isDatabaseEmpty()) {
-
-            showNoContactDialog();
-
-        } else {
-
-            displayContacts();
-
-        }
+        displayContacts();
 
     }
 
@@ -247,36 +298,12 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    private static class MyPreferences {
-
-        private static final String MY_PREFERENCES = "my_preferences";
-
-        private static boolean isFirst(Context context) {
-
-            final SharedPreferences sharedPreferences = context.getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-            final boolean first = sharedPreferences.getBoolean("is_first", true);
-
-            if (first) {
-
-                final SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                editor.putBoolean("is_first", false);
-                editor.apply();
-
-            }
-
-            return first;
-
-        }
-
-    }
-
     private void displayContacts() {
 
         int count = dbHandler.getContactCount();
         GridLayout gridLayout = findViewById(R.id.gridLayout);
 
-        gridLayout.setPadding(0,20,0,0);
+        gridLayout.setPadding(0, 20, 0, 0);
 
         //Creates the text views and radio buttons programmatically.
 
@@ -434,41 +461,6 @@ public class MainActivity extends BaseActivity {
         finish();
 
         startActivity(getIntent());
-
-    }
-
-    public void showNoContactDialog() {
-        new AlertDialog.Builder(MainActivity.this)
-                .setIcon(android.R.drawable.sym_contact_card)
-                .setTitle("No Contacts!")
-                .setMessage("You do not have any contacts. \nWant to go to load contacts?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-
-                        loadContacts(getApplicationContext(), dbHandler);
-
-                        finish();
-
-                        startActivity(getIntent());
-
-                    }
-
-                })
-
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                        finish();
-
-                    }
-
-                })
-                .show();
 
     }
 
