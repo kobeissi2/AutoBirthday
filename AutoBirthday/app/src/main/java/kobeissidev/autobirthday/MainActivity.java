@@ -294,7 +294,7 @@ public class MainActivity extends BaseActivity {
 
         TextView nameTextView = new TextView(this);
 
-        nameTextView.setTextSize(18);
+        nameTextView.setTextSize(16);
         nameTextView.setPadding(20, 20, 20, 20);
         nameTextView.setTextColor(Color.WHITE);
         nameTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -324,7 +324,7 @@ public class MainActivity extends BaseActivity {
 
         TextView birthdayTextView = new TextView(this);
 
-        birthdayTextView.setTextSize(18);
+        birthdayTextView.setTextSize(16);
         birthdayTextView.setPadding(20, 20, 20, 20);
         birthdayTextView.setTextColor(Color.WHITE);
         birthdayTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -354,9 +354,9 @@ public class MainActivity extends BaseActivity {
         typeRadioButton[1] = new RadioButton(this);
 
         typeRadioButton[0].setText(R.string.SMS);
-        typeRadioButton[0].setTextSize(18);
+        typeRadioButton[0].setTextSize(16);
         typeRadioButton[1].setText(R.string.Off);
-        typeRadioButton[1].setTextSize(18);
+        typeRadioButton[1].setTextSize(16);
 
         typeRadioGroup.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
