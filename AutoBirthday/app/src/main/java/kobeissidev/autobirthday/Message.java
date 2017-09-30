@@ -156,12 +156,15 @@ public class Message extends Service {
 
     private void sendSMS(String contactName) {
 
-        SmsManager smsManager = SmsManager.getDefault();
+        if (!contactNumber.equals("")) {
 
-        smsManager.sendTextMessage(contactNumber, null, messageToSend, null, null);
+            SmsManager smsManager = SmsManager.getDefault();
 
-        Toast.makeText(this, "Sent Birthday Message To " + contactName + "!", Toast.LENGTH_SHORT).show();
+            smsManager.sendTextMessage(contactNumber, null, messageToSend, null, null);
 
+            Toast.makeText(this, "Sent Birthday Message To " + contactName + "!", Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     @Override

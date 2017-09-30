@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridLayout;
@@ -127,15 +128,15 @@ public class MainActivity extends BaseActivity {
 
             run();
 
-            runNotificationManager(getApplicationContext());
-
-            runNotification(getApplicationContext(), notificationManager);
-
-            runInBackground();
-
-            setThemes();
-
         }
+
+        runNotificationManager(getApplicationContext());
+
+        runNotification(getApplicationContext(), notificationManager);
+
+        runInBackground();
+
+        setThemes();
 
     }
 
@@ -444,6 +445,8 @@ public class MainActivity extends BaseActivity {
                 //Updates the database through the ID and the new app to use.
 
                 dbHandler.updateContactAppToUse(contact.get_id(), appToUseUpdateID);
+
+                recreate();
 
             }
 
