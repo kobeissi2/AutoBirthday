@@ -228,7 +228,7 @@ public class MainActivity extends BaseActivity {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                     .setContentTitle(context.getString(R.string.app_name))
                     .setContentText(message)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_stat_cake)
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher_round))
