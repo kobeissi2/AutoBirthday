@@ -1,6 +1,7 @@
 package kobeissidev.autobirthday;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,12 +16,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -31,13 +35,13 @@ import android.widget.Toast;
 import java.text.DateFormatSymbols;
 
 import static kobeissidev.autobirthday.Settings.getLoadChecked;
-import static kobeissidev.autobirthday.Settings.getThemeSelected;
 import static kobeissidev.autobirthday.Settings.loadContacts;
 
 
 public class MainActivity extends BaseActivity {
 
     DBHandler dbHandler;
+    Button contactButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,7 @@ public class MainActivity extends BaseActivity {
         final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         dbHandler = new DBHandler(this);
         final int MY_PERMISSIONS_REQUEST = 0;
+        contactButton = findViewById(R.id.contactButton);
 
         final String MY_PREFERENCES = "my_preferences";
         final SharedPreferences sharedPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
@@ -130,17 +135,29 @@ public class MainActivity extends BaseActivity {
 
         }
 
+        if (!dbHandler.isDatabaseEmpty()) {
+            contactButton.setVisibility(View.GONE);
+        } else {
+            contactButton.setVisibility(View.VISIBLE);
+            contactButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivityForResult(new Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI), 2);
+                }
+            });
+        }
+
         runNotificationManager(getApplicationContext());
 
         runNotification(getApplicationContext(), notificationManager);
 
         runInBackground();
 
-        setThemes();
+        setTheme();
 
     }
 
-    private void setThemes() {
+    private void setTheme() {
 
         if (getActionBar() != null) {
 
@@ -148,30 +165,6 @@ public class MainActivity extends BaseActivity {
             getActionBar().setDisplayShowHomeEnabled(true);
             getActionBar().setLogo(getDrawable(R.drawable.ic_stat_cake));
             getActionBar().setDisplayUseLogoEnabled(true);
-
-        }
-
-        String theme = getThemeSelected(getApplicationContext());
-
-        switch (theme) {
-
-            case "Material Dark":
-
-                setTheme(R.style.MaterialBlack);
-
-                break;
-
-            case "Material Red":
-
-                setTheme(R.style.MaterialAutoBirthday);
-
-                break;
-
-            default:
-
-                setTheme(R.style.MaterialBlue);
-
-                break;
 
         }
 
@@ -460,6 +453,11 @@ public class MainActivity extends BaseActivity {
         //Runs when returns from settings to refresh itself.
 
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 2) {
+            loadContacts(this, dbHandler);
+            recreate();
+        }
 
         finish();
 
