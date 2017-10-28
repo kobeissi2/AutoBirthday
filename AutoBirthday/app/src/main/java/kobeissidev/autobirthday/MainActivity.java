@@ -314,12 +314,19 @@ public class MainActivity extends BaseActivity {
     private TextView setName(int index) {
 
         TextView nameTextView = new TextView(this);
+        String name= "";
+
+        if(dbHandler.getContact(index + 1).get_contactName().length()>15){
+            name = dbHandler.getContact(index + 1).get_contactName().substring(0,15);
+        }else{
+            name = dbHandler.getContact(index + 1).get_contactName();
+        }
 
         nameTextView.setTextSize(16);
         nameTextView.setPadding(20, 20, 20, 20);
         nameTextView.setTextColor(Color.WHITE);
         nameTextView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        nameTextView.setText(dbHandler.getContact(index + 1).get_contactName());
+        nameTextView.setText(name);
 
         return nameTextView;
 
