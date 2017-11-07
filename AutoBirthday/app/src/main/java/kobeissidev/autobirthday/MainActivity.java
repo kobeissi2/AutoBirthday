@@ -1,7 +1,6 @@
 package kobeissidev.autobirthday;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -20,7 +19,6 @@ import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,8 +38,7 @@ import static kobeissidev.autobirthday.Settings.loadContacts;
 
 public class MainActivity extends BaseActivity {
 
-    DBHandler dbHandler;
-    Button contactButton;
+    private DBHandler dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +49,7 @@ public class MainActivity extends BaseActivity {
         final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         dbHandler = new DBHandler(this);
         final int MY_PERMISSIONS_REQUEST = 0;
-        contactButton = findViewById(R.id.contactButton);
+        Button contactButton = findViewById(R.id.contactButton);
 
         final String MY_PREFERENCES = "my_preferences";
         final SharedPreferences sharedPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
@@ -109,7 +106,8 @@ public class MainActivity extends BaseActivity {
                                 "\n\nTo have your contacts appear, you must have their birthdays " +
                                 "stored inside your contacts then press load contacts. " +
                                 "\n\nWhenever you are ready to add more, you can press load contacts from the menu." +
-                                "\n\nIf you change a current contact who is loaded, you must press reload to reflect changes.")
+                                "\n\nIf you change a current contact who is loaded, you must press reload to reflect changes." +
+                                "\n\nIf you manually change the time, the app will reset its data automatically. You must re-open the app to start it again.")
                         .setPositiveButton("Okay!", new DialogInterface.OnClickListener() {
 
                             @Override
@@ -133,28 +131,26 @@ public class MainActivity extends BaseActivity {
 
             run();
 
+            if (!dbHandler.isDatabaseEmpty()) {
+                contactButton.setVisibility(View.GONE);
+            } else {
+                contactButton.setVisibility(View.VISIBLE);
+                contactButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivityForResult(new Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI), 2);
+                    }
+                });
+            }
+
+            runNotificationManager(getApplicationContext());
+
+            runNotification(getApplicationContext(), notificationManager);
+
+            runInBackground();
+
+            setTheme();
         }
-
-        if (!dbHandler.isDatabaseEmpty()) {
-            contactButton.setVisibility(View.GONE);
-        } else {
-            contactButton.setVisibility(View.VISIBLE);
-            contactButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    startActivityForResult(new Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI), 2);
-                }
-            });
-        }
-
-        runNotificationManager(getApplicationContext());
-
-        runNotification(getApplicationContext(), notificationManager);
-
-        runInBackground();
-
-        setTheme();
-
     }
 
     private void setTheme() {
@@ -187,7 +183,10 @@ public class MainActivity extends BaseActivity {
 
                 mChannel.setDescription(description);
                 mChannel.enableVibration(false);
-                mNotificationManager.createNotificationChannel(mChannel);
+
+                if (mNotificationManager != null) {
+                    mNotificationManager.createNotificationChannel(mChannel);
+                }
 
             }
 
@@ -218,7 +217,8 @@ public class MainActivity extends BaseActivity {
 
         } else {
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+            //Only for older versions of Android
+            @SuppressWarnings("deprecation") NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                     .setContentTitle(context.getString(R.string.app_name))
                     .setContentText(message)
                     .setPriority(NotificationCompat.PRIORITY_MIN)
@@ -314,13 +314,15 @@ public class MainActivity extends BaseActivity {
     private TextView setName(int index) {
 
         TextView nameTextView = new TextView(this);
-        String name= "";
+        String name;
 
-        if(dbHandler.getContact(index + 1).get_contactName().length()>15){
-            name = dbHandler.getContact(index + 1).get_contactName().substring(0,15);
-        }else{
+        if (dbHandler.getContact(index + 1).get_contactName().length() > 15) {
+            name = dbHandler.getContact(index + 1).get_contactName().substring(0, 15);
+        } else {
             name = dbHandler.getContact(index + 1).get_contactName();
         }
+
+        name = name.replaceAll("''", "'");
 
         nameTextView.setTextSize(16);
         nameTextView.setPadding(20, 20, 20, 20);
@@ -418,7 +420,7 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    public void saveRadioGroup(final Contact contact, RadioGroup radioGroup) {
+    private void saveRadioGroup(final Contact contact, RadioGroup radioGroup) {
 
         //Check whenever a radio button is selected.
 
@@ -430,7 +432,7 @@ public class MainActivity extends BaseActivity {
                 //The index of the selected radio button.
 
                 int index = group.indexOfChild(findViewById(group.getCheckedRadioButtonId()));
-                String appToUseUpdateID = "";
+                String appToUseUpdateID;
 
                 if (index == 0) {
 

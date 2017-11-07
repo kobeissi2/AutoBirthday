@@ -17,9 +17,12 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static kobeissidev.autobirthday.MainActivity.runNotificationManager;
 import static kobeissidev.autobirthday.MyJobService.getIntent;
@@ -84,10 +87,33 @@ public class Message extends Service {
 
     private boolean isTimeToSendMessage() {
 
+        setTimePreferences();
         String time = timeToSend.substring(19, timeToSend.length() - 1);
         String currentTime = android.text.format.DateFormat.getTimeFormat(this).format(new Date());
+        String pattern;
+        Date one, two;
+        boolean isTimeToSend = false;
 
-        return time.equals(currentTime);
+        if (DateFormat.is24HourFormat(getApplicationContext())) {
+
+            pattern = "H:mm";
+
+        } else {
+            pattern = "h:mm a";
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern, Locale.getDefault());
+        try {
+            one = dateFormat.parse(time);
+            two = dateFormat.parse(currentTime);
+
+            if (one.compareTo(two) == 0) {
+                isTimeToSend = true;
+            }
+
+        } catch (ParseException ignored) {
+        }
+
+        return isTimeToSend;
 
     }
 
@@ -200,7 +226,11 @@ public class Message extends Service {
 
                         contactNumber = getContactNumber(contact);
 
-                        sendSMS(contact);
+                        if (!messageSent) {
+
+                            sendSMS(contact);
+
+                        }
 
                         messageSent = true;
 

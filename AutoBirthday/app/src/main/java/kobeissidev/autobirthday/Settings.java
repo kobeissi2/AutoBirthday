@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.format.DateFormat;
@@ -523,6 +524,9 @@ public class Settings extends BaseActivity {
                                 ContactsContract.CommonDataKinds.Event.START_DATE));
 
                         birthday = birthday.substring(2, birthday.length());
+
+                        displayName = DatabaseUtils.sqlEscapeString(displayName);
+                        displayName= displayName.substring(1,displayName.length()-1);
 
                         phoneNumber = getPhoneNumber(context, displayName);
 
